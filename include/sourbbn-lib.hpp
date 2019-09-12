@@ -13,7 +13,7 @@ namespace sourbbn {
 
 inline std::string from_sourbbn(const std::string &s1 ) {
 
-    return s1 + " From: SourBBN Shared Library from Gitlab";
+    return s1 + " a bunch of foo";
 
 }
 
