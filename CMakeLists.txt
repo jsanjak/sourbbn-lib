@@ -8,8 +8,8 @@ cmake_minimum_required(VERSION 3.4.1)
 project(sourbbn-lib)
 
 #Adds the library with no build products
-add_library(sourbbn-lib INTERFACE)
+add_library(sourbbn-lib SHARED src/sourbbn.cpp)
 
 #Include the header files not tests or examples
-target_include_directories(sourbbn-lib INTERFACE include/)
+target_include_directories(sourbbn-lib PUBLIC include)
 
