@@ -10,7 +10,7 @@ TEST_CASE("simple") {
 
     std::string repeated = sourbbn::from_sourbbn(to_repeat);
 
-    REQUIRE( repeated == "Hello");
+    REQUIRE( repeated == "Hello" );
     
 
 }
