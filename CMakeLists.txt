@@ -19,7 +19,6 @@ add_library(sourbbn-lib SHARED src/sourbbn.cpp)
 #Include the header files not tests or examples
 target_include_directories(sourbbn-lib PUBLIC include)
 
-
 ##########################################################
 # Unit tests
 
