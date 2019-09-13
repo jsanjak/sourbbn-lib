@@ -9,7 +9,7 @@ namespace sourbbn {
 
     std::string from_sourbbn(const std::string &s1 ) {
 
-        return s1 + " From: SourBBN STATIC";
+        return s1;
 
     }
 

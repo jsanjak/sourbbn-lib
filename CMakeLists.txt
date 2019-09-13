@@ -23,5 +23,13 @@ target_include_directories(sourbbn-lib PUBLIC include)
 ##########################################################
 # Unit tests
 
-#enable_testing()
+enable_testing()
 
+add_executable(unit_tests test/unit_tests.cpp)
+
+target_link_libraries(unit_tests
+    sourbbn-lib
+    Catch2::Test
+)
+
+add_test(test_all unit_tests)
