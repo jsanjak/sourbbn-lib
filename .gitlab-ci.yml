@@ -6,10 +6,10 @@ stages:
 .test_template: &test_definition
   stage: test
   before_script:
-    - cmake .
-    - make
+    - cmake -H. -Bbuild
+    - make -j8 -C build
   script:
-    - ./unit_tests
+    - ./build/bin/unit_tests
 
 test_master:
   <<: *test_definition
