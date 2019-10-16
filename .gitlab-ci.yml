@@ -11,8 +11,8 @@ stages:
   script:
     - ./unit_tests
 
-  test_master:
-    <<: *test_definition
-    only:
-      refs:
-        - master
+test_master:
+  <<: *test_definition
+  only:
+    refs:
+      - master
