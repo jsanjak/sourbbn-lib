@@ -1,0 +1,18 @@
+image: "rikorose/gcc-cmake"
+
+stages:
+  - test
+
+.test_template: &test_definition
+  stage: test
+  before_script:
+    - cmake .
+    - make 
+  script:
+    ./unit_tests
+
+  test_master:
+    <<: *test_definition
+    only:
+      refs:
+        - master
