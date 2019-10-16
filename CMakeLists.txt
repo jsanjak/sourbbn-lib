@@ -12,13 +12,15 @@ set(CMAKE_CXX_STANDARD 11)
 
 # add the CMakeFile that defines catch2--used for unit testing
 add_subdirectory(3rd_party/catch2)
+add_subdirectory(3rd_party/sqlite3)
 
 #Adds the library with no build products
-add_library(sourbbn-lib SHARED src/sourbbn.cpp)
+file(GLOB sour_SRC "src/*cpp")
+add_library(sourbbn-lib SHARED ${sour_SRC})
 
 #Include the header files not tests or examples
 target_include_directories(sourbbn-lib PUBLIC include)
-
+target_link_libraries(sourbbn-lib sqlite3)
 ##########################################################
 # Unit tests
 
