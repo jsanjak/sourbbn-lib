@@ -7,9 +7,9 @@ stages:
   stage: test
   before_script:
     - cmake .
-    - make 
+    - make
   script:
-    ./unit_tests
+    - ./unit_tests
 
   test_master:
     <<: *test_definition
