@@ -14,6 +14,8 @@ set(CMAKE_CXX_STANDARD 11)
 add_subdirectory(3rd_party/catch2)
 add_subdirectory(3rd_party/sqlite3)
 
+include_directories(3rd_party/sqlite3/sqlite3)
+
 #Adds the library with no build products
 file(GLOB sour_SRC "src/*cpp")
 add_library(sourbbn-lib SHARED ${sour_SRC})
@@ -23,7 +25,7 @@ target_include_directories(sourbbn-lib PUBLIC include)
 target_link_libraries(sourbbn-lib sqlite3)
 ##########################################################
 # Unit tests
-
+set( CMAKE_CXX_FLAGS " -pthread " )
 enable_testing()
 
 add_executable(unit_tests test/unit_tests.cpp)
@@ -31,6 +33,8 @@ add_executable(unit_tests test/unit_tests.cpp)
 target_link_libraries(unit_tests
     sourbbn-lib
     Catch2::Test
+    sqlite3
+    ${CMAKE_DL_LIBS}
 )
 
 add_test(test_all unit_tests)
