@@ -47,7 +47,7 @@ TEST_CASE("Test FieldSchema and RowSchema") {
     REQUIRE( copy_assigned_constructed_field == copy_assigned_field );
     REQUIRE( &copy_assigned_constructed_field != &copy_assigned_field );    
     
-    std::string repeated_field = string_field.getName();
+    std::string repeated_field = string_field.get_name();
     
     row_fields.append(string_field);
     
@@ -68,7 +68,7 @@ TEST_CASE("Test FieldSchema and RowSchema") {
     REQUIRE(failed_test);
 
     //Confirm Field Type
-    REQUIRE( ( typeid(string_field.getType())==typeid(ft) ) );
+    REQUIRE( ( typeid(string_field.get_type())==typeid(ft) ) );
 
     //Confirm schema equality from within a RowSchema
     REQUIRE( string_field==row_fields.get(0));
@@ -93,13 +93,14 @@ TEST_CASE("Test RowValue ") {
     
     sourbbn::RowValue row_values(row_fields);
     
-    row_values.m_fields.emplace_back(true);
-    row_values.m_fields.emplace_back(10);
-    row_values.m_fields.emplace_back(10.10);
+    row_values.push_check<bool>(true);
+    row_values.push_check<int>(10);
+    row_values.push_check<float>(10.10);
     
-    REQUIRE( (*row_values.m_schema).get(0) == bool_field);
-    REQUIRE( (*row_values.m_schema).get(0).getType() == sourbbn::FieldType::Boolean);
-    REQUIRE( (*row_values.m_schema).get_index("test_boolean") == 0);
+    //Tests on the shared schema pointer
+    REQUIRE( (*row_values.m_schema).get(0) == bool_field) ;
+    REQUIRE( (*row_values.m_schema).get(0).get_type() == sourbbn::FieldType::Boolean );
+    REQUIRE( (*row_values.m_schema).get_index("test_boolean") == 0 );
     
     bool failed_test = false;
     try{
@@ -113,15 +114,20 @@ TEST_CASE("Test RowValue ") {
     };
     REQUIRE( failed_test );
 
-    REQUIRE( (*row_values.m_schema).get(1) == int_field);
-    REQUIRE( (*row_values.m_schema).get(1).getType() == sourbbn::FieldType::Integer);
+    REQUIRE( (*row_values.m_schema).get(1) == int_field );
+    REQUIRE( (*row_values.m_schema).get(1).get_type() == sourbbn::FieldType::Integer );
 
-    REQUIRE( (*row_values.m_schema).get(2) == float_field);
-    REQUIRE( (*row_values.m_schema).get(2).getType() == sourbbn::FieldType::FloatingPoint);
+    REQUIRE( (*row_values.m_schema).get(2) == float_field );
+    REQUIRE( (*row_values.m_schema).get(2).get_type() == sourbbn::FieldType::FloatingPoint );
+    
+    //Tests on the data access
+    REQUIRE( row_values.get(0) == true );
+    REQUIRE( row_values.get(1) == 10 );
+    REQUIRE( row_values.get(2) == float(10.10) );
     
 }
 
-TEST_CASE("Create a row schema"){
+TEST_CASE("Test CPTable Features"){
 
     sqlite3* DB;
     
@@ -130,8 +136,20 @@ TEST_CASE("Create a row schema"){
     int exit = 0; 
     std::vector<std::string> data_table_list;
     std::vector<std::string> link_table_list;
-    std::vector<std::string> example_data;
-    sourbbn::CPTable basic_table = sourbbn::CPTable();
+    std::vector<std::string> static_data_table{"a","b","c","d"};
+    std::vector<std::string> static_link_table{"a_link","b_link","c_link","d_link"};
+    std::vector<std::string> static_column_names{"p","m","dist","d_id","b_id","c_id"};
+
+    float total_prob = 4.0;
+    int n_col_elim = 3;
+    size_t n_row = 8;
+    size_t n_row_elim = 4;
+
+    sourbbn::CPTable a_table = sourbbn::CPTable();
+    sourbbn::CPTable b_table = sourbbn::CPTable();
+    sourbbn::CPTable c_table = sourbbn::CPTable();
+    sourbbn::CPTable d_table = sourbbn::CPTable();
+    
     /////////////////////////////////////////////
     exit = sqlite3_open("test/data/diamond.sqlite", &DB);
     
@@ -148,38 +166,62 @@ TEST_CASE("Create a row schema"){
     
     sqlite3_exec(DB, data_table_query.c_str(), sourbbn::standard_sqlite_callback, &data_table_list, &zErrMsg);
     
-    ///////////// TODO write assertion here
-    std::cout << "Data table names are:" << std::endl;
 
-    for (auto const& i: data_table_list) {
-		std::cout << i << " ";
-	}
-    std::cout << std::endl;
-
-
-    ///////////// TODO write assertion here
-    sqlite3_exec(DB, link_table_query.c_str(), sourbbn::standard_sqlite_callback, &link_table_list, &zErrMsg);
+    REQUIRE(data_table_list==static_data_table);
     
-    std::cout << "Link table names are:" << std::endl;
+    REQUIRE(static_link_table==static_link_table);
+
+
+    /////////////Table Headers
+    std::string a_header_query("SELECT * FROM " + data_table_list.at(0) + " LIMIT 1;");
+    std::string b_header_query("SELECT * FROM " + data_table_list.at(1) + " LIMIT 1;");
+    std::string c_header_query("SELECT * FROM " + data_table_list.at(2) + " LIMIT 1;");
+    std::string d_header_query("SELECT * FROM " + data_table_list.at(3) + " LIMIT 1;");
+
+    sqlite3_exec(DB, a_header_query.c_str(), a_table.schema_callback, &a_table.m_schema, &zErrMsg);
+    sqlite3_exec(DB, b_header_query.c_str(), b_table.schema_callback, &b_table.m_schema, &zErrMsg);
+    sqlite3_exec(DB, c_header_query.c_str(), c_table.schema_callback, &c_table.m_schema, &zErrMsg);
+    sqlite3_exec(DB, d_header_query.c_str(), d_table.schema_callback, &d_table.m_schema, &zErrMsg);
+
+
+    REQUIRE(d_table.m_schema.field_names()==static_column_names);
     
-    for (auto const& i: link_table_list) {
-		std::cout << i << " ";
-	}
-    std::cout << std::endl;
 
+    /////////////Table Eliminations
+    std::string a_table_query("SELECT * FROM " + data_table_list.at(0) + ";");
+    std::string b_table_query("SELECT * FROM " + data_table_list.at(1) + ";");
+    std::string c_table_query("SELECT * FROM " + data_table_list.at(2) + ";");
+    std::string d_table_query("SELECT * FROM " + data_table_list.at(3) + ";");
 
-    ///////////// TODO write assertion here
-    std::string example_header_query("SELECT * FROM " + data_table_list.at(0) + " LIMIT 1;");
+    sqlite3_exec(DB, a_table_query.c_str(), a_table.data_callback, &a_table, &zErrMsg);
+    sqlite3_exec(DB, b_table_query.c_str(), b_table.data_callback, &b_table, &zErrMsg);
+    sqlite3_exec(DB, c_table_query.c_str(), c_table.data_callback, &c_table, &zErrMsg);
+    sqlite3_exec(DB, d_table_query.c_str(), d_table.data_callback, &d_table, &zErrMsg);
+
+    REQUIRE(d_table.column_sum("p") == total_prob);
+    REQUIRE(d_table.m_rows.size() == n_row);
+
+    sourbbn::CPTable d_elim_b = sourbbn::elim(d_table,"b_id");
+    sourbbn::CPTable d_elim_c = sourbbn::elim(d_table,"c_id");
+    sourbbn::CPTable d_elim_d = sourbbn::elim(d_table,"d_id");
+
+    REQUIRE(d_elim_b.column_sum("p") == total_prob);
+    REQUIRE(d_elim_b.m_rows.size() == n_row/2);
+
+    REQUIRE(d_elim_c.column_sum("p") == total_prob);
+    REQUIRE(d_elim_c.m_rows.size() == n_row/2);
+
+    REQUIRE(d_elim_d.column_sum("p") == total_prob);
+    REQUIRE(d_elim_d.m_rows.size() == n_row/2);
     
-    sqlite3_exec(DB, example_header_query.c_str(), basic_table.SchemaCallback, &basic_table.m_schema, &zErrMsg);
 
-    std::cout << "Table column names are:" << std::endl;
-    for (auto const& i: basic_table.m_schema.m_fields) {
-		std::cout << i.getName() << " ";
-	}
-    std::cout << std::endl;
-
-    /////////////
+    /////////////Table Joins
+    sourbbn::print_cptable(b_table,true);
+    sourbbn::print_cptable(c_table,true);
+    sourbbn::CPTable b_c_join = sourbbn::join(b_table,c_table);
+    std::cout << "Joined Table:" << std::endl;
+    sourbbn::print_cptable(b_c_join,false);
+    std::cout << b_c_join.column_sum("p")<< std::endl;
     sqlite3_close(DB);
 
 }

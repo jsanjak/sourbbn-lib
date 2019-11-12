@@ -37,5 +37,5 @@ target_link_libraries(unit_tests
     ${CMAKE_DL_LIBS}
 )
 
-add_test(test_all unit_tests)
+#add_test(test_all unit_tests)
 

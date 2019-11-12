@@ -9,7 +9,7 @@ stages:
     - cmake -H. -Bbuild
     - make -j8 -C build
   script:
-    - ./build/unit_tests
+    - ./build/unit_tests -s
 
 test_master:
   <<: *test_definition

@@ -6,7 +6,12 @@
 #include <string>
 #include <type_traits>
 #include <algorithm> 
-#include <stdexcept>      
+#include <stdexcept>
+#include <stdlib.h>
+#include <iostream>
+#include <iterator>
+#include <unordered_map>    
+#include <utility>
 #include "sourbbn/cptable.hpp"
 
 namespace sourbbn {
@@ -26,13 +31,13 @@ FieldSchema::FieldSchema(FieldType mt, std::string mn){
 };
 
 
-std::string FieldSchema::getName() const {
+std::string FieldSchema::get_name() const {
 
     return m_name;
 
 };
 
-FieldType FieldSchema::getType() const {
+FieldType FieldSchema::get_type() const {
 
     return m_type;
 
@@ -40,7 +45,7 @@ FieldType FieldSchema::getType() const {
 
 bool FieldSchema::operator==(const FieldSchema &other) const {
     //If name and type are equal, then the field schemas are equivalent
-    return ( m_name == other.getName() && ( typeid(m_type)==typeid(other.getType()) ) );
+    return ( m_name == other.get_name() && ( typeid(m_type)==typeid(other.get_type()) ) );
 
 };
 
@@ -51,12 +56,15 @@ bool FieldSchema::operator==(const std::string &s) const {
 
 };
 
+RowSchema::RowSchema(){
+    std::vector<FieldSchema> m_fields;
+};
 
 void RowSchema::append(const FieldSchema &fs){
     //Enforces unique columns by name, even if you try to add
     //a column with same name but different type
     decltype(m_fields)::iterator it;
-    it = find(m_fields.begin(), m_fields.end(), fs.getName());
+    it = find(m_fields.begin(), m_fields.end(), fs.get_name());
     if(it == m_fields.end()){
 
         m_fields.emplace_back(fs);
@@ -67,7 +75,7 @@ void RowSchema::append(const FieldSchema &fs){
     
     };
     
-
+  
 };
 
 FieldSchema& RowSchema::get(const int &i){
@@ -84,28 +92,57 @@ int RowSchema::get_index(const std::string fname){
         return (it - m_fields.begin());
     } else {
         throw std::out_of_range(fname + " not in schema");
-    }
+    };
     
 };
 
-//
+std::vector<std::string> RowSchema::field_names(){
+    std::vector<std::string>f_names;
+    for (auto & f : m_fields){
+        f_names.emplace_back(f.get_name());
+    }
+    return (f_names);
+};
+
+
 FieldValue::FieldValue(){};
 
 FieldValue::FieldValue(bool b){
 
+    //field_type = FieldType::Boolean;
     m_boolean = b;
 
 };
 
 FieldValue::FieldValue(int i){
 
+    //field_type = FieldType::Integer;
     m_integer = i;
 
 };
 
-FieldValue::FieldValue(double d){
+FieldValue::FieldValue(float f){
 
-    m_floatingpoint = d;
+    //field_type = FieldType::FloatingPoint;
+    m_floatingpoint = f;
+
+};
+
+bool FieldValue::operator==(const bool &b) const {
+
+    return ( m_boolean == b );
+
+};
+
+bool FieldValue::operator==(const int &i) const {
+
+    return ( m_integer == i );
+
+};
+
+bool FieldValue::operator==(const float &f) const {
+
+    return ( m_floatingpoint == f );
 
 };
 
@@ -122,11 +159,87 @@ RowValue::RowValue(RowSchema &ms): m_schema(std::make_shared<RowSchema>(ms)){
 
 };
 
-/*FieldValue& RowValue::get(const int &i){
-    sourbbn::FieldSchema fs(*(m_schema).at(i))
+//Push and check arbitrary type against schema
+template<typename T> void RowValue::push_check(T val){
 
-};*/
+    if ( (*m_schema).m_fields.empty() ){
 
+        //throw exception for trying to push with an empty schema
+
+    } else {
+
+        std::size_t i = m_fields.size();
+        
+        if (i>=(*m_schema).m_fields.size()){
+
+            //throw out of range error
+
+        } else {
+            
+            FieldType ft = (*m_schema).get(i).get_type();
+
+            if ( ft == FieldType::Boolean ){
+
+                if ( typeid(val)==typeid(bool) ){
+
+                    m_fields.emplace_back(val);
+
+                } else {
+
+                    //schema error
+
+                };
+
+            } else if ( ft == FieldType::Integer ){
+
+                if ( typeid(val)==typeid(int) ){
+
+                     m_fields.emplace_back(val);
+
+                } else {
+
+                    //schema error
+
+                };
+
+            } else if (  ft == FieldType::FloatingPoint ){
+
+                if ( typeid(val)==typeid(float) ){
+
+                     m_fields.emplace_back(val);
+
+                } else {
+
+                    //schema error
+
+                };
+
+            } else {
+
+                //throw type error
+
+            };  
+        };
+    };
+};
+template void RowValue::push_check<int>(int);
+template void RowValue::push_check<bool>(bool);
+template void RowValue::push_check<float>(float);
+
+FieldValue& RowValue::get(const int &i) {
+
+    //Wrapper to at because we don't want to make m_fields public,
+    //so we can enforce the schema
+    return( m_fields.at(i) );
+
+};
+
+void RowValue::add(const int &i,const float & fv){
+
+    //should check that field value at i is int
+    m_fields.at(i).m_floatingpoint += fv;
+
+};
 //Default constructor
 CPTable::CPTable(){
 
@@ -134,24 +247,52 @@ CPTable::CPTable(){
     std::vector<RowValue> m_rows;
 
 } 
+CPTable::CPTable(const RowSchema &ms): m_schema(ms) {
 
-CPTable::CPTable(const RowSchema &ms){
-
-    //?Does this need a copy/assignment constructor??
-    RowSchema m_schema = ms;
     std::vector<RowValue> m_rows;
 
 } 
-/*
-CPTable::CPTable(const RowSchema &ms, const std::vector<RowValue> &mr){
+//copy constructor
+CPTable::CPTable(const CPTable & other_table):
+m_schema(other_table.m_schema),m_rows(other_table.m_rows)
+{
 
-    //?Does this need a copy/assignment constructor??
-    RowSchema m_schema = ms;
-    std::vector<RowValue> m_rows = mr;
+};
 
-} */
+//move constructor
+CPTable::CPTable(CPTable&& other_table) noexcept :
+m_schema(std::move(other_table.m_schema)),m_rows(std::move(other_table.m_rows))
+{
+    
+};
 
-int CPTable::SchemaCallback(void* data, int argc, char** argv, char** azColName){ 
+//copy assignment
+CPTable &CPTable::operator=(const CPTable& other_table){
+
+    if (this != &other_table) {
+
+        m_schema = other_table.m_schema;
+        m_rows = other_table.m_rows;
+        
+    }
+    return *this; 
+};
+
+//move assignment
+CPTable &CPTable::operator=(CPTable&& other_table) noexcept {
+    if (this != &other_table) {
+        m_schema = std::move(other_table.m_schema);
+        m_rows = std::move(other_table.m_rows);
+    }
+    return *this; 
+};
+
+CPTable::~CPTable(){
+
+};//Destructor
+
+
+int CPTable::schema_callback(void* data, int argc, char** argv, char** azColName){ 
     int i; 
     FieldSchema schema_field;
     RowSchema *p = static_cast<RowSchema*>(data);
@@ -173,31 +314,49 @@ int CPTable::SchemaCallback(void* data, int argc, char** argv, char** azColName)
     return 0; 
 } 
 
-/*
-int CPTable::DataCallback(void* data, int argc, char** argv, char** azColName){ 
-    int i; 
-    std::vector<RowValue> *p = static_cast<std::vector<RowValue>*>(data);
 
-    RowValue row_data;
+int CPTable::data_callback(void* data, int argc, char** argv, char** azColName){ 
+    
+    int i; 
+    
+    CPTable *cpt = static_cast<CPTable*>(data);
+
+    RowValue row_data( (*cpt).m_schema );
 
     for (i = 0; i < argc; i++) {
+        //Check incase we're out of range
+        FieldType ft = (*cpt).m_schema.get(i).get_type();
 
-        if (i<2){
+        if ( ft == FieldType::Boolean){
 
-            schema_field = FieldSchema(FieldType::FloatingPoint, azColName[i]);
-        
+            row_data.push_check<bool>((bool)atoi(argv[i]));
+
+        } else if ( ft == FieldType::Integer) {
+
+            row_data.push_check<int>(atoi(argv[i]));
+
+        } else if ( ft == FieldType::FloatingPoint){
+
+             row_data.push_check<float>((float)atof(argv[i]));
+
         } else {
 
-            schema_field = FieldSchema(FieldType::Integer, azColName[i]);
-        
-        }
-        
-        p->append(schema_field);
+            //fail
 
-    } 
+        };
+    };
+    cpt->m_rows.emplace_back(row_data);
     return 0; 
-} */
+} 
 
+float CPTable::column_sum(const std::string &var){
 
+    float col_sum = 0.0;
+    int var_index = m_schema.get_index(var);
+    for (auto & row: m_rows) {
+        col_sum += row.get(var_index).m_floatingpoint;
+    }
+    return (col_sum);
+};
 
 }//END NAMESPACE
