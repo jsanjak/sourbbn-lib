@@ -3,6 +3,7 @@
 #include <iostream>
 #include <memory>
 
+
 #include "sourbbn/sourbbn.hpp"
 #include "sourbbn/cptable.hpp"
 #include "sourbbn/utils.hpp"
@@ -20,6 +21,44 @@ TEST_CASE("simple") {
 
     REQUIRE( repeated_string == "Hello" );
 
+}
+
+TEST_CASE("Public API"){
+    
+    std::string db_path = "test/data/diamond.sqlite";
+    std::vector<std::string> evidence_vars = {"a","b","c"};
+    std::string query_var  = "d";
+    std::vector<int> query_1 = {0,0,0};
+    
+    sourbbn::Sourbbn test_bbn(db_path,false);
+    test_bbn.set_query(evidence_vars,query_1,query_var);
+    
+    test_bbn.calc_means();
+    std::vector<float> test_means = test_bbn.read_means();
+    
+    test_bbn.calc_standard_devs();
+    std::vector<float> test_standard_devs = test_bbn.read_standard_devs();
+    
+    std::vector<std::string> test_query_names = test_bbn.read_query_names();
+
+    std::cout << "Means are: ";
+    for (auto & m: test_means) {
+       std::cout<< m << " ";
+    };
+    std::cout << std::endl;
+
+    std::cout << "Std. Devs are: ";
+    for (auto & s: test_standard_devs) {
+       std::cout<< s << " ";
+    };
+    std::cout << std::endl;
+
+    std::cout << "Vars are: ";
+    for (auto & qn: test_query_names) {
+       std::cout<< qn << " ";
+    };
+    std::cout << std::endl;
+    
 }
 
 //TODO: write tests for other types
