@@ -43,7 +43,7 @@ namespace sourbbn {
                     std::cout << "Set some members" << std::endl;
 
                     if (fake){
-                        query_var_levels = {"anaplasmosis","rickettsiosis","lyme_disease"};
+                        query_var_levels = {"anaplasmosis","rickettsiosis","lyme_disease", "ehrlichiosis"};
                     } else {
                         query_var_levels = {"0","1"};
                     };
@@ -55,7 +55,7 @@ namespace sourbbn {
                 //TODO ERROR AND STATE HANDLING
                 if(fake){
 
-                    means = {0.8,0.15,0.05};
+                    means = {0.7,0.24,0.05,0.01};
 
                 } else {
                     //Put real implementation here
@@ -69,7 +69,7 @@ namespace sourbbn {
                 //TODO ERROR AND STATE HANDLING
                 if(fake){
 
-                    standard_devs = {0.1,0.05,0.01};
+                    standard_devs = {0.1,0.05,0.01,0.005};
                 
                 } else {
                     //Put real implementation her

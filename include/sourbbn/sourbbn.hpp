@@ -27,9 +27,9 @@ class Sourbbn {
         Use the constructor with is_fake = true as the placeholder.
         When is_fake is set to true, the class will generate fake data.
         Specifically, it will return:
-            - Query variable names of: anaplasmosis, rickettsiosis and lyme_disease
-            - Means of: 0.8, 0.15 and 0.05
-            - Std. devs of: 0.1, 0.05 and 0.01 
+            - Query variable names of: anaplasmosis, rickettsiosis, lyme_disease and ehrlichiosis
+            - Means of: 0.7, 0.24, 0.05 and 0.01
+            - Std. devs of: 0.1, 0.05, 0.01 and 0.005
 
         Currently, when is_fake is false (default), it also give garbage data.
         However, that will change as the real algorithm is implemented.
