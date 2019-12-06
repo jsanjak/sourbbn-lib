@@ -50,6 +50,7 @@ namespace sourbbn {
 
             };
             
+            
             void calc_means(){
                 //TODO ERROR AND STATE HANDLING
                 if(fake){
@@ -77,6 +78,12 @@ namespace sourbbn {
                 };
 
             };
+            
+            std::vector<std::string> read_query_names(){
+
+                return(query_var_levels);
+
+            };
 
             std::vector<float> read_means(){
                 //TODO ERROR AND STATE HANDLING
@@ -86,12 +93,6 @@ namespace sourbbn {
             std::vector<float> read_standard_devs(){
                 //TODO ERROR AND STATE HANDLING
                 return(standard_devs);
-            };
-            
-            std::vector<std::string> read_query_names(){
-
-                return(query_var_levels);
-
             };
 
     };
@@ -108,12 +109,13 @@ namespace sourbbn {
             }
     
     void Sourbbn::calc_means(){sourbbn_pimpl->calc_means();}
-    std::vector<float> Sourbbn::read_means(){ return sourbbn_pimpl->read_means();}
-
     void Sourbbn::calc_standard_devs(){sourbbn_pimpl->calc_standard_devs();}
+
+    std::vector<float> Sourbbn::read_means(){ return sourbbn_pimpl->read_means();}
+    std::vector<std::string> Sourbbn::read_query_names(){ return sourbbn_pimpl->read_query_names();}
     std::vector<float> Sourbbn::read_standard_devs(){ return sourbbn_pimpl->read_standard_devs();}
 
-    std::vector<std::string> Sourbbn::read_query_names(){ return sourbbn_pimpl->read_query_names();}
+    
 
     Sourbbn::~Sourbbn() = default;
 }
