@@ -10,7 +10,7 @@
 
 
 #define CATCH_CONFIG_MAIN
-#include  <sqlite3.h>
+#include <sqlite3.h>
 #include "catch2/catch.hpp"
 
 TEST_CASE("simple") {

@@ -5,7 +5,10 @@
 #include <vector>
 #include <string>
 #include <exception>
+#include <sqlite3.h>
+
 #include "sourbbn/sourbbn.hpp"
+#include "sourbbn/utils.hpp"
 
 namespace sourbbn {
     //Here for compatibility with the mobile example
@@ -21,6 +24,7 @@ namespace sourbbn {
 
             std::string db_path = {};
             bool fake = false;
+            std::vector<std::string> data_table_list; 
             std::vector<std::string> evidence_vars= {};
             std::vector<int> evidence_values = {};
             std::string query_var = {};
@@ -30,8 +34,66 @@ namespace sourbbn {
 
         public:
 
-            sourbbn_impl(const std::string &db) : db_path(db) {}
-            sourbbn_impl(const std::string &db, const bool & f) : db_path(db), fake(f) {}
+            sourbbn_impl(const std::string &db) : db_path(db) {
+                    //NOTE: this feels repetitive...can I move this open & read thing into it's own function?
+                    int can_read = 0;
+                    char *zErrMsg = 0;
+                    sqlite3* DB;
+                    
+                    if (can_read==0){
+
+                        //Obtain the list of data tables
+                        std::string data_table_query("SELECT name FROM sqlite_master WHERE \
+                                                type ='table' AND name NOT LIKE 'sqlite_%' \
+                                                AND name NOT LIKE '%_link';");
+
+                        sqlite3_exec(DB, 
+                        data_table_query.c_str(), 
+                        standard_sqlite_callback, 
+                        &data_table_list, &zErrMsg);
+
+                    } else {
+
+                        throw std::invalid_argument("Invalid SQLite3 database");
+
+                    }
+
+            }
+            sourbbn_impl(const std::string &db, const bool & f) : db_path(db), fake(f) {
+
+                if (fake){
+
+                    data_table_list = {"state","ASPL","disease"};
+
+                } else {
+
+                    int can_read = 0;
+                    char *zErrMsg = 0;
+                    sqlite3* DB;
+                    
+                    can_read = sqlite3_open(db_path.c_str(), &DB);
+
+                    if (can_read==0){
+
+                        //Obtain the list of data tables
+                        std::string data_table_query("SELECT name FROM sqlite_master WHERE \
+                                                type ='table' AND name NOT LIKE 'sqlite_%' \
+                                                AND name NOT LIKE '%_link';");
+
+                        sqlite3_exec(DB, 
+                        data_table_query.c_str(), 
+                        standard_sqlite_callback, 
+                        &data_table_list, &zErrMsg);
+
+                    } else {
+
+                        throw std::invalid_argument("Invalid SQLite3 database");
+
+                    }
+
+                }
+
+            }
 
             void set_query(
                 const std::vector<std::string> & e_vars, 
@@ -40,21 +102,34 @@ namespace sourbbn {
                         
                 if ( e_vars.size()==e_values.size()){
                     
-                    //Confirm can open and read db
+                    int can_read = 0;
+                    char *zErrMsg = 0;
+                    sqlite3* DB;
+                    can_read = sqlite3_open(db_path.c_str(), &DB);
+
+                    if (can_read==0){
+                        //Confirm can open and read db
+
+
+                        evidence_vars = e_vars;
+                        evidence_values = e_values;
+                        query_var = query_var;
+                        std::cout << "Set some members" << std::endl;
+
+                        if (fake){
+                            query_var_levels = {"anaplasmosis","rickettsiosis","lyme_disease", "ehrlichiosis"};
+                        } else {
+                            //should read from database for this
+                            query_var_levels = {"0","1"};
+                        };
+                    } else {
+
+                        throw std::invalid_argument("Invalid SQLite3 database");
+
+                    }
+                    
                     //Confirm e_vars, and q_var are in the database
                     //Confirm that e_values are valid values of e_vars
-
-                    evidence_vars = e_vars;
-                    evidence_values = e_values;
-                    query_var = query_var;
-                    std::cout << "Set some members" << std::endl;
-
-                    if (fake){
-                        query_var_levels = {"anaplasmosis","rickettsiosis","lyme_disease", "ehrlichiosis"};
-                    } else {
-                        //should read from database for this
-                        query_var_levels = {"0","1"};
-                    };
 
                 } else {
 

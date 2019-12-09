@@ -7,8 +7,9 @@ cmake_minimum_required(VERSION 3.4.1)
 
 project(sourbbn-lib)
 
-#Use C++11 standard
+#Use C++11 standard with -fPIC
 set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # add the CMakeFile that defines catch2--used for unit testing
 add_subdirectory(3rd_party/catch2)
