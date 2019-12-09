@@ -31,6 +31,9 @@ TEST_CASE("Public API"){
     std::vector<int> query_1 = {0,0,0};
     
     sourbbn::Sourbbn test_bbn(db_path,false);
+
+    REQUIRE_THROWS(test_bbn.set_query({"a","b"},{0,0,0},"d"));
+    
     test_bbn.set_query(evidence_vars,query_1,query_var);
     
     test_bbn.calc_means();
@@ -40,6 +43,8 @@ TEST_CASE("Public API"){
     std::vector<float> test_standard_devs = test_bbn.read_standard_devs();
     
     std::vector<std::string> test_query_names = test_bbn.read_query_names();
+
+    //TODO: Actual tests for these functions
 
     std::cout << "Means are: ";
     for (auto & m: test_means) {

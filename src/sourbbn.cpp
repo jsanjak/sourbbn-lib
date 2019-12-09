@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <exception>
 #include "sourbbn/sourbbn.hpp"
 
 namespace sourbbn {
@@ -36,7 +37,13 @@ namespace sourbbn {
                 const std::vector<std::string> & e_vars, 
                 const std::vector<int> & e_values, 
                 const std::string & q_var){
-                
+                        
+                if ( e_vars.size()==e_values.size()){
+                    
+                    //Confirm can open and read db
+                    //Confirm e_vars, and q_var are in the database
+                    //Confirm that e_values are valid values of e_vars
+
                     evidence_vars = e_vars;
                     evidence_values = e_values;
                     query_var = query_var;
@@ -45,8 +52,15 @@ namespace sourbbn {
                     if (fake){
                         query_var_levels = {"anaplasmosis","rickettsiosis","lyme_disease", "ehrlichiosis"};
                     } else {
+                        //should read from database for this
                         query_var_levels = {"0","1"};
                     };
+
+                } else {
+
+                    throw std::invalid_argument("Evidence variables and values are of different length");
+
+                }      
 
             };
             
