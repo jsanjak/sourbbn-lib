@@ -6,6 +6,9 @@
 #include <string>
 #include <exception>
 #include <sqlite3.h>
+#include <iterator>
+#include <algorithm>
+
 
 #include "sourbbn/sourbbn.hpp"
 #include "sourbbn/utils.hpp"
@@ -24,7 +27,7 @@ namespace sourbbn {
 
             std::string db_path = {};
             bool fake = false;
-            std::vector<std::string> data_table_list; 
+            std::vector<std::string> cptable_list; 
             std::vector<std::string> evidence_vars= {};
             std::vector<int> evidence_values = {};
             std::string query_var = {};
@@ -50,7 +53,7 @@ namespace sourbbn {
                         sqlite3_exec(DB, 
                         data_table_query.c_str(), 
                         standard_sqlite_callback, 
-                        &data_table_list, &zErrMsg);
+                        &cptable_list, &zErrMsg);
 
                     } else {
 
@@ -63,7 +66,7 @@ namespace sourbbn {
 
                 if (fake){
 
-                    data_table_list = {"state","ASPL","disease"};
+                    cptable_list = {"state","ASPL","disease"};
 
                 } else {
 
@@ -83,7 +86,7 @@ namespace sourbbn {
                         sqlite3_exec(DB, 
                         data_table_query.c_str(), 
                         standard_sqlite_callback, 
-                        &data_table_list, &zErrMsg);
+                        &cptable_list, &zErrMsg);
 
                     } else {
 
@@ -109,18 +112,38 @@ namespace sourbbn {
 
                     if (can_read==0){
                         //Confirm can open and read db
-
-
                         evidence_vars = e_vars;
                         evidence_values = e_values;
-                        query_var = query_var;
+                        query_var = q_var;
                         std::cout << "Set some members" << std::endl;
 
                         if (fake){
                             query_var_levels = {"anaplasmosis","rickettsiosis","lyme_disease", "ehrlichiosis"};
                         } else {
-                            //should read from database for this
+
+                            //Confirm that evidence variables are in the database
+                            std::vector<std::string>::iterator var_it;
+                            for(auto var : evidence_vars){
+
+                                var_it = find(cptable_list.begin(),cptable_list.end(),var);
+                                if(var_it == cptable_list.end() ){
+
+                                    throw std::invalid_argument("Evidence variable not in database");
+
+                                }
+
+                            }
+
+                            //Confirm that query variables are in the database
+                            var_it = find(cptable_list.begin(),cptable_list.end(),query_var);
+                            if(var_it == cptable_list.end() ){
+
+                                throw std::invalid_argument("Query variable not in database");
+
+                            }
+
                             query_var_levels = {"0","1"};
+
                         };
                     } else {
 
@@ -174,6 +197,12 @@ namespace sourbbn {
 
             };
 
+            std::vector<std::string> read_cptable_names(){
+
+                return(cptable_list);
+
+            };
+
             std::vector<float> read_means(){
                 //TODO ERROR AND STATE HANDLING
                 return(means);
@@ -201,6 +230,7 @@ namespace sourbbn {
     void Sourbbn::calc_standard_devs(){sourbbn_pimpl->calc_standard_devs();}
 
     std::vector<float> Sourbbn::read_means(){ return sourbbn_pimpl->read_means();}
+    std::vector<std::string> Sourbbn::read_cptable_names(){ return sourbbn_pimpl->read_cptable_names();}
     std::vector<std::string> Sourbbn::read_query_names(){ return sourbbn_pimpl->read_query_names();}
     std::vector<float> Sourbbn::read_standard_devs(){ return sourbbn_pimpl->read_standard_devs();}
 

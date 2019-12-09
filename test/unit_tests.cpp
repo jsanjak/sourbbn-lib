@@ -26,15 +26,29 @@ TEST_CASE("simple") {
 TEST_CASE("Public API"){
     
     std::string db_path = "test/data/diamond.sqlite";
+    std::vector<std::string> static_data_table{"a","b","c","d"};
     std::vector<std::string> evidence_vars = {"a","b","c"};
     std::string query_var  = "d";
     std::vector<int> query_1 = {0,0,0};
     
     sourbbn::Sourbbn test_bbn(db_path,false);
 
+    auto read_cptables = test_bbn.read_cptable_names();
+
+    REQUIRE (read_cptables==static_data_table);
+
     REQUIRE_THROWS(test_bbn.set_query({"a","b"},{0,0,0},"d"));
-    
-    test_bbn.set_query(evidence_vars,query_1,query_var);
+    REQUIRE_THROWS(test_bbn.set_query({"a","b","c","bad_var"},{0,0,0,0},"d"));
+    REQUIRE_THROWS(test_bbn.set_query({"a","b","c"},{0,0,0},"bad_var"));
+
+    /*BAD VALUE TEST CASES:
+
+    REQUIRE_THROWS(test_bbn.set_query({"a","b","c"},{0,0,50},"d"));
+
+    Best to set the full BBN CPTable construction and then validate the
+    evidence values upon CPTable subset
+    */
+    REQUIRE_NOTHROW(test_bbn.set_query(evidence_vars,query_1,query_var));
     
     test_bbn.calc_means();
     std::vector<float> test_means = test_bbn.read_means();
@@ -210,11 +224,9 @@ TEST_CASE("Test CPTable Features"){
     
     sqlite3_exec(DB, data_table_query.c_str(), sourbbn::standard_sqlite_callback, &data_table_list, &zErrMsg);
     
-
     REQUIRE(data_table_list==static_data_table);
     
     REQUIRE(static_link_table==static_link_table);
-
 
     /////////////Table Headers
     std::string a_header_query("SELECT * FROM " + data_table_list.at(0) + " LIMIT 1;");
