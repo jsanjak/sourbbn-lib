@@ -234,7 +234,6 @@ namespace sourbbn {
     std::vector<std::string> Sourbbn::read_query_names(){ return sourbbn_pimpl->read_query_names();}
     std::vector<float> Sourbbn::read_standard_devs(){ return sourbbn_pimpl->read_standard_devs();}
 
-    
-
+    //For now, but in the long run we may need custom
     Sourbbn::~Sourbbn() = default;
 }
