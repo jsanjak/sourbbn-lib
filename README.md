@@ -2,6 +2,8 @@
 
 
 ## Running 
+```
 cmake . 
-make 
-make test
+make
+./unit_tests -s
+```

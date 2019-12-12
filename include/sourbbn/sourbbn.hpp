@@ -19,6 +19,8 @@ class Sourbbn {
     private:
         class sourbbn_impl;
         std::unique_ptr<sourbbn_impl> sourbbn_pimpl;
+
+        
     public:
         
         Sourbbn(const std::string &db_path);

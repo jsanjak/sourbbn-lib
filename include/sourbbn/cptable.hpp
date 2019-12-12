@@ -103,6 +103,7 @@ struct CPTable{
     CPTable& operator=(CPTable&& other_table) noexcept;//move assignment
     ~CPTable();//Destructor
 
+    RowSchema scheme();
     static int schema_callback(void* data, int argc, char** argv, char** azColName);
     static int data_callback(void* data, int argc, char** argv, char** azColName);
 
