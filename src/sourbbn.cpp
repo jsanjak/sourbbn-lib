@@ -30,7 +30,7 @@ namespace sourbbn {
             std::string db_path = {};
             bool fake = false;
             std::vector<std::string> cptable_list;
-            BucketList buckets; 
+            //BucketList buckets; 
             std::vector<std::string> evidence_vars= {};
             std::vector<int> evidence_values = {};
             std::string query_var = {};
