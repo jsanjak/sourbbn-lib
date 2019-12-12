@@ -245,18 +245,19 @@ CPTable::CPTable(){
 
     RowSchema m_schema;
     std::vector<RowValue> m_rows;
+    std::string table_name;
 
 } 
 CPTable::CPTable(const RowSchema &ms): m_schema(ms) {
 
     std::vector<RowValue> m_rows;
-
+    std::string table_name;
 } 
 //copy constructor
 CPTable::CPTable(const CPTable & other_table):
-m_schema(other_table.m_schema),m_rows(other_table.m_rows)
+m_schema(other_table.m_schema),m_rows(other_table.m_rows),table_name(other_table.table_name+"_copy")
 {
-
+    
 };
 
 //move constructor

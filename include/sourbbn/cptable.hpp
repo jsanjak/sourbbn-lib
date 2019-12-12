@@ -91,7 +91,7 @@ struct CPTable{
 
     RowSchema m_schema;
     std::vector<RowValue> m_rows;
-
+    std::string table_name;
     //cannot be used for elimination or joins
     const std::unordered_map<std::string,int> protected_names = {{"p",1},{"m",1},{"dist",1}};
 
