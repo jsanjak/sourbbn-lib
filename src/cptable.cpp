@@ -291,6 +291,16 @@ CPTable::~CPTable(){
 
 };//Destructor
 
+RowSchema CPTable::scheme(){
+    RowSchema new_schema;
+    for (auto fs : m_schema.m_fields ){
+        std::unordered_map<std::string,int>::const_iterator prot = protected_names.find(fs.get_name());  
+        if (prot == protected_names.end()){
+            new_schema.append(fs);
+        };
+    };
+    return(new_schema);
+};
 
 int CPTable::schema_callback(void* data, int argc, char** argv, char** azColName){ 
     int i; 

@@ -242,6 +242,22 @@ TEST_CASE("Test CPTable Features"){
 
     REQUIRE(d_table.m_schema.field_names()==static_column_names);
     
+    sourbbn::RowSchema a_scheme = a_table.scheme();
+    sourbbn::RowSchema b_scheme = b_table.scheme();
+    sourbbn::RowSchema c_scheme = c_table.scheme();
+    sourbbn::RowSchema d_scheme = d_table.scheme();
+
+   
+    std::vector<std::string> static_a_scheme{"a_id"};
+    std::vector<std::string> static_b_scheme{"b_id","a_id"};
+    std::vector<std::string> static_c_scheme{"c_id","a_id"};
+    std::vector<std::string> static_d_scheme{"d_id","b_id","c_id"};
+
+    REQUIRE(a_scheme.field_names() == static_a_scheme );
+    REQUIRE(b_scheme.field_names() == static_b_scheme );
+    REQUIRE(c_scheme.field_names() == static_c_scheme );
+    REQUIRE(d_scheme.field_names() == static_d_scheme );
+
 
     /////////////Table Eliminations
     std::string a_table_query("SELECT * FROM " + data_table_list.at(0) + ";");

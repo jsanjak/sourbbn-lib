@@ -25,6 +25,8 @@ CPTable elim(CPTable &cp_table,std::vector<std::string> vars);
 CPTable join(CPTable &t1,CPTable &t2);
 CPTable join(std::vector<std::reference_wrapper<CPTable>> &tables);
 
+
+
 ////////////////////////////////////////////////////////////////////////////////////////
 inline int standard_sqlite_callback(void* data, int argc, char** argv, char** azColName) 
 { 

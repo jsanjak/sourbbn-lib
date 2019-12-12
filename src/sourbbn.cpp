@@ -10,6 +10,8 @@
 #include <algorithm>
 
 
+#include "sourbbn/cptable.hpp"
+#include "sourbbn/buckets.hpp"
 #include "sourbbn/sourbbn.hpp"
 #include "sourbbn/utils.hpp"
 
@@ -27,7 +29,8 @@ namespace sourbbn {
 
             std::string db_path = {};
             bool fake = false;
-            std::vector<std::string> cptable_list; 
+            std::vector<std::string> cptable_list;
+            BucketList buckets; 
             std::vector<std::string> evidence_vars= {};
             std::vector<int> evidence_values = {};
             std::string query_var = {};
@@ -165,6 +168,11 @@ namespace sourbbn {
             
             void calc_means(){
                 //TODO ERROR AND STATE HANDLING
+                /*
+                Key states:
+                    - Cannot be run without setting a query variable
+                    - Should be capable of being updated from unknown -> known without starting over
+                */
                 if(fake){
 
                     means = {0.7,0.24,0.05,0.01};
