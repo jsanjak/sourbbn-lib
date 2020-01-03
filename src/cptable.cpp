@@ -4,14 +4,17 @@
 
 #include <memory>
 #include <string>
+#include <vector>
+#include <unordered_map>
+
 #include <type_traits>
 #include <algorithm> 
 #include <stdexcept>
 #include <stdlib.h>
 #include <iostream>
 #include <iterator>
-#include <unordered_map>    
 #include <utility>
+
 #include "sourbbn/cptable.hpp"
 
 namespace sourbbn {
@@ -245,18 +248,19 @@ CPTable::CPTable(){
 
     RowSchema m_schema;
     std::vector<RowValue> m_rows;
+    std::string table_name;
 
 } 
 CPTable::CPTable(const RowSchema &ms): m_schema(ms) {
 
     std::vector<RowValue> m_rows;
-
+    std::string table_name;
 } 
 //copy constructor
 CPTable::CPTable(const CPTable & other_table):
-m_schema(other_table.m_schema),m_rows(other_table.m_rows)
+m_schema(other_table.m_schema),m_rows(other_table.m_rows),table_name(other_table.table_name+"_copy")
 {
-
+    
 };
 
 //move constructor
@@ -283,6 +287,7 @@ CPTable &CPTable::operator=(CPTable&& other_table) noexcept {
     if (this != &other_table) {
         m_schema = std::move(other_table.m_schema);
         m_rows = std::move(other_table.m_rows);
+        table_name = std::move(other_table.table_name);
     }
     return *this; 
 };
@@ -290,6 +295,7 @@ CPTable &CPTable::operator=(CPTable&& other_table) noexcept {
 CPTable::~CPTable(){
 
 };//Destructor
+
 
 RowSchema CPTable::scheme(){
     RowSchema new_schema;
@@ -356,6 +362,7 @@ int CPTable::data_callback(void* data, int argc, char** argv, char** azColName){
         };
     };
     cpt->m_rows.emplace_back(row_data);
+    
     return 0; 
 } 
 
