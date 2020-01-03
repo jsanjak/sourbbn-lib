@@ -9,6 +9,7 @@
 #include <string>
 #include <vector>
 
+#include "sourbbn/cptable.hpp"
 
 namespace sourbbn {
 
@@ -29,13 +30,19 @@ struct tableid_hash
 struct Bucket {
 
   std::string bucket_id;
-  std::unordered_map<std::string,CPTable> bucket_tables;
+  std::vector<CPTable> bucket_tables;
   
   Bucket();
   Bucket(std::string & bid);
-  Bucket(std::string & bid,CPTable b_tbl);
+  Bucket(std::string && bid);
+  Bucket(std::string & bid,CPTable & b_tbl);
+  Bucket(std::string && bid,CPTable & b_tbl);
   Bucket(std::string & bid,std::vector<CPTable> & b_tbls);
-  //TODO Add table to bucket
+  Bucket(std::string && bid,std::vector<CPTable> & b_tbls);
+  Bucket(std::string && bid,std::vector<CPTable> && b_tbls);
+
+  void append(CPTable & b_tbl);
+  //TODO Append table to bucket, ??Remove table??
 };
 
 struct BucketList {
@@ -44,9 +51,10 @@ struct BucketList {
   std::unordered_map<std::string,Bucket> buckets;
 
   BucketList();
-  std::string max_index(std::string bucket, std::string table);
+  BucketList(std::vector<std::string> & pi);
+  float BuckElim();
 
 };
 
 }
-#endif //SOURBBN_LIB_BUCKETS_HPP
+#endif //SOURBBN_LIB_BUCKETS_HPP       

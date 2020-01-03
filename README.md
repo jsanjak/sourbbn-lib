@@ -1,7 +1,7 @@
-# sourbbn-lib: C++ Library for solving Second Order Uncertainy in Bayesian Belief Networks
+# Sourbbn-lib: C++ Library for solving Second Order Uncertainy in Bayesian Belief Networks
 
 
-## Running 
+## Build and test 
 ```
 cmake . 
 make

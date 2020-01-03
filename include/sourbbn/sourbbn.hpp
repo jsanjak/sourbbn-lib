@@ -9,18 +9,25 @@
 #include <vector>
 #include <memory>
 
+#include "sourbbn/cptable.hpp"
+
 namespace sourbbn {
 
-//Here for compatibility with original example
 std::string from_sourbbn(const std::string &s1);
-////////////////////////////////////////////////
 
+/**
+ * Sourbbn provides the interface to construct and query
+ * Second-Order Uncertainty Bayesian Belief Networks (sou-bbn)
+ * 
+ * The tables that define the sou-bbn must be contained in an sqlite3 database.
+ * Evidence and queries are set at the same time. The means and standard deviations
+ * of the query, must be calculated sequentially.
+ * 
+ */
 class Sourbbn {
     private:
         class sourbbn_impl;
         std::unique_ptr<sourbbn_impl> sourbbn_pimpl;
-
-        
     public:
         
         Sourbbn(const std::string &db_path);
@@ -49,8 +56,12 @@ class Sourbbn {
         std::vector<std::string> read_query_names();
         std::vector<float> read_means();
         std::vector<float> read_standard_devs();
-
+        
         ~Sourbbn();
+        
+        //CPTable& get_table(std::string & tbl_name);
+        //CPTable& get_table(std::string && tbl_name);
+
         //TODO copy/move assign/construct 
 
 };
