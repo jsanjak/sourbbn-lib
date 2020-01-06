@@ -2,6 +2,7 @@ image: "rikorose/gcc-cmake"
 
 stages:
   - test
+  - deploy
 
 .test_template: &test_definition
   stage: test
