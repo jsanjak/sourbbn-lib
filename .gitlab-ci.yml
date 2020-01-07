@@ -22,7 +22,7 @@ test_master:
 pages:
   stage: deploy
   script:
-  - echo 'Nothing to do...'
+  - mv docs/html/* public/
   artifacts:
     paths:
     - public
