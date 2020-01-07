@@ -1,0 +1,73 @@
+\hypertarget{structsourbbn_1_1CPTable}{}\section{sourbbn\+:\+:C\+P\+Table Struct Reference}
+\label{structsourbbn_1_1CPTable}\index{sourbbn\+::\+C\+P\+Table@{sourbbn\+::\+C\+P\+Table}}
+
+
+Collaboration diagram for sourbbn\+:\+:C\+P\+Table\+:
+\nopagebreak
+\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[width=193pt]{structsourbbn_1_1CPTable__coll__graph}
+\end{center}
+\end{figure}
+\subsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structsourbbn_1_1CPTable_a91772bb85dc0edfb3c659730fb1570f8}\label{structsourbbn_1_1CPTable_a91772bb85dc0edfb3c659730fb1570f8}} 
+{\bfseries C\+P\+Table} (const \hyperlink{classsourbbn_1_1RowSchema}{Row\+Schema} \&ms)
+\item 
+\mbox{\Hypertarget{structsourbbn_1_1CPTable_a397df7e9d67d895ada6d8c1c99736d3c}\label{structsourbbn_1_1CPTable_a397df7e9d67d895ada6d8c1c99736d3c}} 
+{\bfseries C\+P\+Table} (const \hyperlink{structsourbbn_1_1CPTable}{C\+P\+Table} \&other\+\_\+table)
+\item 
+\mbox{\Hypertarget{structsourbbn_1_1CPTable_a2951c4f0b57373b338e0a5859f730d9c}\label{structsourbbn_1_1CPTable_a2951c4f0b57373b338e0a5859f730d9c}} 
+{\bfseries C\+P\+Table} (\hyperlink{structsourbbn_1_1CPTable}{C\+P\+Table} \&\&other\+\_\+table) noexcept
+\item 
+\mbox{\Hypertarget{structsourbbn_1_1CPTable_a7ecc27010fb8e1754a9b82c3d760790e}\label{structsourbbn_1_1CPTable_a7ecc27010fb8e1754a9b82c3d760790e}} 
+\hyperlink{structsourbbn_1_1CPTable}{C\+P\+Table} \& {\bfseries operator=} (const \hyperlink{structsourbbn_1_1CPTable}{C\+P\+Table} \&other\+\_\+table)
+\item 
+\mbox{\Hypertarget{structsourbbn_1_1CPTable_a40b09f0f86067fd7cccefae925012ee5}\label{structsourbbn_1_1CPTable_a40b09f0f86067fd7cccefae925012ee5}} 
+\hyperlink{structsourbbn_1_1CPTable}{C\+P\+Table} \& {\bfseries operator=} (\hyperlink{structsourbbn_1_1CPTable}{C\+P\+Table} \&\&other\+\_\+table) noexcept
+\item 
+\mbox{\Hypertarget{structsourbbn_1_1CPTable_aff3f0def2ea100b7468709e0e0b69f41}\label{structsourbbn_1_1CPTable_aff3f0def2ea100b7468709e0e0b69f41}} 
+\hyperlink{classsourbbn_1_1RowSchema}{Row\+Schema} {\bfseries scheme} ()
+\item 
+\mbox{\Hypertarget{structsourbbn_1_1CPTable_aea66324ae4cb8f0b6ae2d847a1832c7f}\label{structsourbbn_1_1CPTable_aea66324ae4cb8f0b6ae2d847a1832c7f}} 
+float {\bfseries column\+\_\+sum} (const std\+::string \&var)
+\end{DoxyCompactItemize}
+\subsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structsourbbn_1_1CPTable_a8b9a998b6c9f03e035a16b8b300a1f93}\label{structsourbbn_1_1CPTable_a8b9a998b6c9f03e035a16b8b300a1f93}} 
+static int {\bfseries schema\+\_\+callback} (void $\ast$data, int argc, char $\ast$$\ast$argv, char $\ast$$\ast$az\+Col\+Name)
+\item 
+\mbox{\Hypertarget{structsourbbn_1_1CPTable_abcfc4ec8b891c9c4bae1d8d1ca85d528}\label{structsourbbn_1_1CPTable_abcfc4ec8b891c9c4bae1d8d1ca85d528}} 
+static int {\bfseries data\+\_\+callback} (void $\ast$data, int argc, char $\ast$$\ast$argv, char $\ast$$\ast$az\+Col\+Name)
+\end{DoxyCompactItemize}
+\subsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{structsourbbn_1_1CPTable_ae0601adf81fe798848d3a39a21945a26}\label{structsourbbn_1_1CPTable_ae0601adf81fe798848d3a39a21945a26}} 
+\hyperlink{classsourbbn_1_1RowSchema}{Row\+Schema} {\bfseries m\+\_\+schema}
+\item 
+\mbox{\Hypertarget{structsourbbn_1_1CPTable_aa9ba48439d7b426f69530d383a9f53f8}\label{structsourbbn_1_1CPTable_aa9ba48439d7b426f69530d383a9f53f8}} 
+std\+::vector$<$ \hyperlink{classsourbbn_1_1RowValue}{Row\+Value} $>$ {\bfseries m\+\_\+rows}
+\item 
+\mbox{\Hypertarget{structsourbbn_1_1CPTable_a2bdd82dafd989d93b49a94f599782d16}\label{structsourbbn_1_1CPTable_a2bdd82dafd989d93b49a94f599782d16}} 
+std\+::string {\bfseries table\+\_\+name}
+\item 
+\mbox{\Hypertarget{structsourbbn_1_1CPTable_a1712ff346b06c75056f6736633042551}\label{structsourbbn_1_1CPTable_a1712ff346b06c75056f6736633042551}} 
+const std\+::unordered\+\_\+map$<$ std\+::string, int $>$ {\bfseries protected\+\_\+names} = \{\{\char`\"{}p\char`\"{},1\},\{\char`\"{}m\char`\"{},1\},\{\char`\"{}dist\char`\"{},1\}\}
+\end{DoxyCompactItemize}
+
+
+\subsection{Detailed Description}
+
+
+Definition at line 90 of file cptable.\+hpp.
+
+
+
+The documentation for this struct was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+include/sourbbn/cptable.\+hpp\item 
+src/cptable.\+cpp\end{DoxyCompactItemize}
