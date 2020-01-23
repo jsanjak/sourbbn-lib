@@ -108,6 +108,7 @@ struct CPTable{
     static int data_callback(void* data, int argc, char** argv, char** azColName);
 
     float column_sum(const std::string &var);
+    std::vector<float> all_probabilities();
 };
 
 }

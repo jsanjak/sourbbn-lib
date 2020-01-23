@@ -14,6 +14,7 @@
 #include <utility>
 #include <assert.h>
 #include <sqlite3.h>
+#include <math.h> 
 
 #include "sourbbn/sourbbn.hpp"
 #include "sourbbn/buckets.hpp"
@@ -33,17 +34,21 @@ namespace sourbbn {
 
             std::string db_path = {};
             bool fake = false;
+            bool means_calc = false;
+            bool query_set = false;
             std::vector<std::string> cptable_names;
+            std::vector<std::tuple<std::string,std::size_t>> evi_buck_cptable_coords;
+            std::vector<std::tuple<std::string,std::size_t>> query_buck_cptable_coords;
 
-            //Potentially unneccessary
-            //std::unordered_map<std::string,CPTable> cptables = {};
             std::unordered_map<std::string,BucketList> query_bucket_lists = {};
+            BucketList evidence_bucket_list = {};
             std::vector<std::string> evidence_vars = {};
             std::vector<int> evidence_values = {};
             std::string query_var = {};
             std::vector<std::string> query_var_levels = {};
             std::vector<float> means = {};
             std::vector<float> standard_devs = {};
+            float p_e;
 
         public:
 
@@ -69,15 +74,12 @@ namespace sourbbn {
                                                 type ='table' AND name NOT LIKE 'sqlite_%' \
                                                 AND name NOT LIKE '%_link';");
 
-                        //std::string link_table_query("SELECT name FROM sqlite_master WHERE \
-                        //     type ='table' AND name NOT LIKE 'sqlite_%' \
-                        //     AND name LIKE '%_link';");
 
                         sqlite3_exec(DB, 
                         data_table_query.c_str(), 
                         standard_sqlite_callback, 
                         &cptable_names, &zErrMsg);
-                        
+
                         sqlite3_close(DB);
                     } else {
 
@@ -116,6 +118,8 @@ namespace sourbbn {
 
                         } else {
                             
+                            evidence_bucket_list = BucketList(cptable_names);
+
                             query_var_levels.clear();
 
                             std::vector<std::string>::iterator qvar_it;
@@ -130,12 +134,12 @@ namespace sourbbn {
                             for(auto var : evidence_vars){
                                 
                                 evar_it = find(cptable_names.begin(),cptable_names.end(),var);
-                                assert(evar_it != cptable_names.end());
-                                /*if(evar_it == cptable_names.end() ){
+
+                                if(evar_it == cptable_names.end() ){
                                     
                                     throw std::invalid_argument("Evidence variable " + var +" not in network");
 
-                                }*/
+                                }
 
                             }
                             std::string qvar_level_query="SELECT DISTINCT " + query_var + " FROM " + query_var + ";";
@@ -155,7 +159,8 @@ namespace sourbbn {
                             std::pair<std::string,CPTable> temp_named_table;
                             
                             CPTable temp_table = CPTable();
-                            
+                            CPTable ev_temp_table = CPTable();
+
                             int ev_in_table = 0;
                             //For each CPtable
                                 //Subset based on evidence 
@@ -174,6 +179,11 @@ namespace sourbbn {
                                 header_query.c_str(), 
                                 temp_table.schema_callback, 
                                 &temp_table.m_schema, &zErrMsg);
+
+                                sqlite3_exec(DB, 
+                                header_query.c_str(), 
+                                ev_temp_table.schema_callback, 
+                                &ev_temp_table.m_schema, &zErrMsg);
 
                                 std::vector<std::string> temp_table_names = temp_table.m_schema.field_names();
                                 
@@ -201,6 +211,42 @@ namespace sourbbn {
 
                                 }
                                 
+                                //Evidence Only BucketList for  P( E=e )
+                                std::string evidence_only_query(evidence_subset_query);
+
+                                evidence_only_query += ";";
+
+                                //std::cout << evidence_only_query <<std::endl;
+
+                                ev_temp_table.m_rows.clear();
+                                 
+                                sqlite3_exec(DB, 
+                                        evidence_only_query.c_str(), 
+                                        ev_temp_table.data_callback, 
+                                        &ev_temp_table, &zErrMsg);
+                                
+                                std::string ev_table_index = max_index(ev_temp_table,cptable_names); 
+                                
+                                auto eb_it = evidence_bucket_list.buckets.find(ev_table_index);
+                                
+                               
+                                if (eb_it != evidence_bucket_list.buckets.end() ){
+                                
+                                    evidence_bucket_list.buckets[ev_table_index].append(ev_temp_table);
+                                    evidence_bucket_list.original_size[ev_table_index] += 1;
+                                
+                                } else {
+
+                                    std::vector<CPTable> ev_temp_vec = {ev_temp_table};
+                                    
+                                    Bucket ev_temp_bucket = Bucket(tbl_name,ev_temp_vec);
+
+                                    evidence_bucket_list.buckets[ev_table_index] = ev_temp_bucket;
+                                    evidence_bucket_list.original_size[ev_table_index] = 1;
+
+                                }
+                                
+                                //Query level BucketLists for each P( H = h_i | E = e )
                                 qvar_it = find(temp_table_names.begin(),temp_table_names.end(),query_var);
 
                                 for (auto && q_lev : query_var_levels ){
@@ -214,24 +260,19 @@ namespace sourbbn {
                                         
                                         temp_table.m_rows.clear();
                                 
-                                        //std::cout << query_subset_query <<std::endl;
                                         sqlite3_exec(DB, 
                                         query_subset_query.c_str(), 
                                         temp_table.data_callback, 
                                         &temp_table, &zErrMsg);
-                                        //print_cptable(temp_table,false);
 
                                     } else if (q_lev == query_var_levels[0] ){
 
                                         query_subset_query += ";";
 
-                                        //std::cout << query_subset_query <<std::endl;
-
                                         sqlite3_exec(DB, 
                                         query_subset_query.c_str(), 
                                         temp_table.data_callback, 
                                         &temp_table, &zErrMsg);
-                                        //print_cptable(temp_table,false);
 
                                     }
                                     
@@ -241,11 +282,9 @@ namespace sourbbn {
                                     //if this query level is already in the list
                                     auto qb_it = query_bucket_lists.find(q_lev);
 
-                                    if (qb_it != query_bucket_lists.end()){
-                                        //temp_named_table = std::make_pair(tbl_name,temp_table);
-                                        
+                                    if (qb_it != query_bucket_lists.end()){                                        
                                         qb_it->second.buckets[temp_table_index].append(temp_table);
-
+                                        qb_it->second.original_size[temp_table_index] += 1;
                                     } else {
                                         //Can be moved constructed?
                                         query_bucket_lists[q_lev] = BucketList(cptable_names);
@@ -255,14 +294,13 @@ namespace sourbbn {
                                         Bucket temp_bucket = Bucket(tbl_name,temp_vec);
 
                                         query_bucket_lists[q_lev].buckets[temp_table_index] = temp_bucket;
+                                        query_bucket_lists[q_lev].original_size[temp_table_index] = 1;
                                     } 
-                                    //std::cout << tbl_name << std::endl;
-                                    //std::cout << query_bucket_lists[q_lev].buckets[temp_table_index].bucket_tables.size() << std::endl;
                                 }
-                                
+                                ev_temp_table = CPTable();
                                 temp_table = CPTable();
                             }
-
+                            
                         }
                     } else {
 
@@ -270,32 +308,18 @@ namespace sourbbn {
 
                     }
                     
-                    std::unordered_map<std::string,Bucket>::iterator check_it;
-                    /*
-                    for(std::string q_lev : query_var_levels){
-                        
-                        std::cout << "Query bucket list: " << q_lev << std::endl; 
-                           
-                        for (std::string var : query_bucket_lists[q_lev].variable_order_pi){
-
-                            std::cout << "Bucket variable: " << var << std::endl;
-                            check_it = query_bucket_lists[q_lev].buckets.find(var);
-                            if(check_it != query_bucket_lists[q_lev].buckets.end()){
-
-                                for(CPTable cpvar : (check_it->second).bucket_tables){
-                                    print_cptable(cpvar,true);
-                                }
-                            }
-                            
-                        }
-                    
-                    }*/
+                     
                     sqlite3_close(DB);
                 } else {
 
                     throw std::invalid_argument("Evidence variables and values are of different length");
 
-                }      
+                }
+            //If we didn't fail, then state that new means 
+            //have not be determined
+            //query_bucket_lists[ query_var_levels[0]].print_buckets();   
+            means_calc = false;
+            query_set = true;
             
             };
             
@@ -305,7 +329,6 @@ namespace sourbbn {
                 /*
                 Key states:
                     - Cannot be run without setting a query variable
-                    - Should be capable of being updated from unknown -> known without starting over
                 */
                 if(fake){
 
@@ -327,14 +350,16 @@ namespace sourbbn {
                         means.push_back(p_h_e);
 
                     }
-                    float sum = std::accumulate(means.begin(), means.end(), 0.0);
-                   
+                    p_e = std::accumulate(means.begin(), means.end(), 0.0);
+                    //std::cout << "Elim Answer:" << sum << std::endl;
                     for ( int iv = 0; iv < means.size(); ++iv ){
-                        means[iv] /= sum;
+                        means[iv] /= p_e;
+                        
                     }
-
+                   
                 };
-                
+                means_calc = true;
+
             };
 
            void calc_standard_devs(){
@@ -344,13 +369,144 @@ namespace sourbbn {
                     standard_devs = {0.1,0.05,0.01,0.005};
                 
                 } else {
-                    //Put real implementation her
-                    standard_devs = {0.1,0.1};
-                
-                };
+                    //Put real implementation here
+                    standard_devs.clear();
+                    if( ! means_calc ){
+
+                        if(query_set){
+                            this->calc_means();
+                    
+                        } else {
+                            throw std::invalid_argument("Query not set yet.");
+                    
+                        }
+                    
+                    }
+
+                    
+                    std::vector<float> temp_probs;
+                    float der_joint;
+                    float der_p_h_e;
+                    float p_h_e;
+                    float theta;
+                    float var_theta_a;
+                    float var_theta_b;
+                    float var_theta;
+                    float sigma_sq_h_e;
+                    std::vector<float> sigma;
+                    float m_f;
+
+                    evidence_bucket_list.BuckElimPlus();
+                    
+                    for (auto && q_lev : query_var_levels){
+                        
+                        //BuckElim+
+                        query_bucket_lists[q_lev].BuckElimPlus();
+                        
+                        //Now process the results
+                        auto q_lev_it = std::find(query_var_levels.begin(),query_var_levels.end(),q_lev);
+                        auto q_lev_i = q_lev_it - query_var_levels.begin();
+
+                        p_h_e = means.at(q_lev_i);
+                        
+                        sigma_sq_h_e = 0;
+                        for(std::string rv : evidence_bucket_list.variable_order_pi){
+
+                            auto der_bucket = query_bucket_lists[q_lev].deriv_buckets[rv];
+                            auto orig_bucket = query_bucket_lists[q_lev].buckets[rv];
+
+                            for(int table_i=0; table_i!=query_bucket_lists[q_lev].original_size[rv]; ++table_i){
+                                
+                                auto der_table  = der_bucket.bucket_tables.at(table_i);
+                                auto orig_table  = orig_bucket.bucket_tables.at(table_i);
+
+                                int p_index_der = der_table.m_schema.get_index("p");
+                                int p_index_orig = orig_table.m_schema.get_index("p");
+                                int m_index_orig = orig_table.m_schema.get_index("m");
+                                int dist_index_orig = orig_table.m_schema.get_index("dist");
+                                
+                                std::vector<RowValue>::iterator row_it;
+                                int dist_val=-1;
+
+                                for (row_it = orig_table.m_rows.begin(); row_it != orig_table.m_rows.end(); ++row_it){
+                                    
+                                    int current_dist = (*row_it).get(dist_index_orig).m_integer;
+                                    int current_row = row_it - orig_table.m_rows.begin();
+
+                                    theta = (*row_it).get(p_index_orig).m_floatingpoint;
+                                        //Not sure why this is working right now...should require match to der(P(E)) tables
+                                    der_joint = der_table.m_rows.at(current_row).get(p_index_der).m_floatingpoint;
+
+                                    der_p_h_e = (1.0/p_e)*(der_joint*(1 - p_h_e));
+                                   
+                                    if(dist_val == -1){
+
+                                        dist_val = current_dist;
+                                        var_theta_a = std::pow(der_p_h_e,2.0)*theta;
+                                        var_theta_b = der_p_h_e*theta;
+                                        m_f = (*row_it).get(m_index_orig).m_floatingpoint;
+
+                                        //if last element -- implies 1 row
+                                        if(row_it == (orig_table.m_rows.end() - 1)  ){
+                                            var_theta = var_theta_a + std::pow(var_theta_b,2.0);
+                                            sigma_sq_h_e += var_theta/(1.0 + m_f);
+                                            /*if (q_lev_i == 0){
+                                                std::cout << "deriv joint: " << der_joint << std::endl;
+                                                std::cout << "deriv condit: " << der_p_h_e << std::endl;
+                                                std::cout << "First var theta: " << var_theta_a << std::endl;
+                                                std::cout << "Seconds var theta: " << var_theta_b << std::endl;
+                                                std::cout << "m_f: " << m_f << std::endl;
+                                            }*/
+                                    
+                                        }
+                                    } else {
+                                        if(dist_val==current_dist){
+                                            //Still in current dist
+                                            var_theta_a += std::pow(der_p_h_e,2.0)*theta;
+                                            var_theta_b += der_p_h_e*theta;
+                                            m_f = (*row_it).get(m_index_orig).m_floatingpoint;
+
+                                            //if last element -- implies multiple of same dist
+                                            if(row_it == (orig_table.m_rows.end() - 1)  ){
+                                                var_theta = var_theta_a + std::pow(var_theta_b,2.0);
+                                                sigma_sq_h_e += var_theta/(1.0 + m_f);
+                                            }
+                                        } else {
+                                            //In new dist now -- finalize variance sum from prior dist
+                                            dist_val = current_dist;
+
+                                            var_theta = var_theta_a + std::pow(var_theta_b,2.0);
+                                            
+                                            sigma_sq_h_e += var_theta/(1.0 + m_f);
+                                            
+                                            m_f = (*row_it).get(m_index_orig).m_floatingpoint;
+                                            //if last element -- implies finished on new dist
+                                            if(row_it == (orig_table.m_rows.end() - 1)  ){
+                                                //Perform whole variance sum
+                                                var_theta_a = std::pow(der_p_h_e,2.0)*theta;
+                                                var_theta_b = der_p_h_e*theta;
+                                                var_theta = var_theta_a + std::pow(var_theta_b,2.0);
+                                                sigma_sq_h_e += var_theta/(1.0 + m_f);
+                                        
+                                            } else {
+                                                //if not last element -- implies starting a new dist
+                                                var_theta_a = std::pow(der_p_h_e,2.0)*theta;
+                                                var_theta_b = der_p_h_e*theta;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        sigma.push_back(std::sqrt(sigma_sq_h_e));
+                    }
+                    
+                    standard_devs = sigma;//{0.2,0.2};
+
+                } 
 
             };
-            
+
             std::vector<std::string> read_query_names(){
 
                 return(query_var_levels);

@@ -376,4 +376,18 @@ float CPTable::column_sum(const std::string &var){
     return (col_sum);
 };
 
+ std::vector<float> CPTable::all_probabilities(){
+     
+     std::vector<float> all_p;
+     
+     int p_index = m_schema.get_index("p");
+
+     for (RowValue & rv : m_rows){
+         all_p.push_back(rv.get(p_index).m_floatingpoint);
+     }
+
+    return(all_p);
+
+ };
+
 }//END NAMESPACE

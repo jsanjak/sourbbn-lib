@@ -27,6 +27,10 @@ void print_cptable(CPTable &cp_table, bool print){
     if (print){
         std::cout << "Table data are:" << std::endl;
     };
+    for( auto && nm : cp_table.m_schema.field_names()){
+        std::cout << nm << " ";
+    }
+    std::cout << std::endl;
     for (auto & row: cp_table.m_rows) {
 
         for (int j=0; j<cp_table.m_schema.m_fields.size(); j++) {
@@ -37,7 +41,7 @@ void print_cptable(CPTable &cp_table, bool print){
             
             } else if (cp_table.m_schema.get(j).get_type() == sourbbn::FieldType::FloatingPoint) {
 
-                std::cout << std::to_string(row.get(j).m_floatingpoint) << " ";
+                std::cout << row.get(j).m_floatingpoint << " ";
 
             } else if (cp_table.m_schema.get(j).get_type() == sourbbn::FieldType::Boolean) {
             
@@ -52,6 +56,36 @@ void print_cptable(CPTable &cp_table, bool print){
 };
 
 //TODO: ELIM ERROR HANDLING
+std::vector<std::string> scheme_diff(RowSchema & s1, RowSchema & s2 ){
+
+    std::vector<std::string> s1_names =  s1.field_names();
+    std::vector<std::string> s2_names =  s2.field_names();
+
+    /*
+    std::cout << "J Names:";
+    for (auto s1n : s1_names){
+        std::cout << s1n << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "f_ij Names:";
+    for (auto s2n : s2_names){
+        std::cout << s2n << " ";
+    }
+    std::cout << std::endl;
+    */
+    std::vector<std::string> diff_names = {};
+    std::vector<std::string>::iterator it;
+
+    for(auto && s1_var : s1_names){
+        
+        it = find(s2_names.begin(),s2_names.end(),s1_var);
+        if ( it == s2_names.end() ){
+            diff_names.push_back(s1_var);
+        }
+    }
+    return(diff_names);
+};
 
 CPTable elim(CPTable &cp_table,std::string var){
 
@@ -359,12 +393,80 @@ CPTable join(const std::vector<CPTable> & tables){
 
 };
 
+
+CPTable d_join(CPTable dg_table,const std::vector<CPTable> & tables, std::size_t & ij){
+
+    if (tables.empty()){
+
+        return dg_table;
+
+    } else if (tables.size() == 1){
+
+        //CPTable tbl_a = tables.at(0);
+        
+        //tbl_a = join(dg_table,tbl_a);
+
+        return dg_table ;
+
+    } else {
+        if(ij == 0 ){
+
+            if (tables.size() == 2){
+                
+                CPTable tbl_a = tables.at(1);
+                
+                tbl_a = join(dg_table,tbl_a);
+
+                return tbl_a ;
+                
+            } else {
+                //size must be greater than 2
+                CPTable tbl_a = tables.at(1);
+                
+                tbl_a = join(dg_table,tbl_a);
+
+                CPTable tbl_b;
+                for(std::size_t i=2; i < tables.size(); i++){
+                    if (i != ij ){
+                        tbl_b = tables.at(i);
+                        tbl_a = join(tbl_a,tbl_b);
+                    }
+                }
+                
+                return tbl_a;
+
+            }
+
+        } else {
+
+            CPTable tbl_a = tables.at(0);
+
+            tbl_a = join(dg_table,tbl_a);
+            
+            CPTable tbl_b;
+            for(std::size_t i=1; i < tables.size(); i++){
+                if (i != ij ){
+                    tbl_b = tables.at(i);
+                    tbl_a = join(tbl_a,tbl_b);
+                }
+              
+            }
+
+            return tbl_a;
+
+        }
+
+    }
+
+};
+
+
 std::string max_index(CPTable & b_tbl, std::vector<std::string> & variable_order_pi){
 
     std::string m_index = "naught";
     auto tbl_scheme = b_tbl.m_schema.field_names();
     for(auto && var : variable_order_pi){
-
+        
         auto it = std::find(tbl_scheme.begin(), tbl_scheme.end(), var);
 
         if (it != tbl_scheme.end()){
@@ -373,7 +475,6 @@ std::string max_index(CPTable & b_tbl, std::vector<std::string> & variable_order
 
         }
     }
-
     return(m_index);
 
 };
