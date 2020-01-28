@@ -137,31 +137,38 @@ int main(){
     evidence_vars = {"a","c"};
     query_1 = {1,1};
     
-    sourbbn::Sourbbn oy1_bbn(diamond_path,false);
-    std::vector<std::string> cptable_names = oy1_bbn.read_cptable_names();
+    std::vector<float> first_means;
+    std::vector<float> first_std;
+    std::vector<std::string> first_names;
+
+    std::string net_type = "tbd";
+    if(net_type=="diamond"){
+        sourbbn::Sourbbn oy1_bbn(diamond_path,false);
+        std::vector<std::string> cptable_names = oy1_bbn.read_cptable_names();
+        
+        oy1_bbn.set_query(evidence_vars,query_1,diamond_var);
     
-    oy1_bbn.set_query(evidence_vars,query_1,diamond_var);
-   
-    //Doesn't work with just a single evidence level
-    //oy1_bbn.calc_means();
-    oy1_bbn.calc_standard_devs();
+        //Doesn't work with just a single evidence level
+        //oy1_bbn.calc_means();
+        oy1_bbn.calc_standard_devs();
+        
+        first_means = oy1_bbn.read_means();
+        first_std = oy1_bbn.read_standard_devs();
+        first_names= oy1_bbn.read_query_names();
     
-    std::vector<float> first_means = oy1_bbn.read_means();
-    std::vector<float> first_std = oy1_bbn.read_standard_devs();
-    std::vector<std::string> first_names= oy1_bbn.read_query_names();
-     
-     /*
-    sourbbn::Sourbbn oy1_bbn(oy1_path,false);
-    std::vector<std::string> cptable_names = oy1_bbn.read_cptable_names();
-    
-    oy1_bbn.set_query(header_values,data_values,disease_var);
-    //oy1_bbn.calc_means();
-    oy1_bbn.calc_standard_devs();
-    std::vector<float> first_means = oy1_bbn.read_means();
-    std::vector<float> first_std = oy1_bbn.read_standard_devs();
-    std::vector<std::string> first_names= oy1_bbn.read_query_names();
-    */
-    std::cout << "Disease, Mean, Std. Dev: " << std::endl;;
+    } else if (net_type=="tbd"){
+
+        sourbbn::Sourbbn oy1_bbn(oy1_path,false);
+        std::vector<std::string> cptable_names = oy1_bbn.read_cptable_names();
+        
+        oy1_bbn.set_query(header_values,data_values,disease_var);
+        //oy1_bbn.calc_means();
+        oy1_bbn.calc_standard_devs();
+        first_means = oy1_bbn.read_means();
+        first_std = oy1_bbn.read_standard_devs();
+        first_names= oy1_bbn.read_query_names();
+    }
+    std::cout << "Mean, Std. Dev: " << std::endl;;
     for (std::size_t i=0;i!=first_means.size(); ++i){
         std::cout << first_means.at(i) << ',';
         std::cout << first_std.at(i) << std::endl;

@@ -21,6 +21,29 @@ int standard_sqlite_callback(void* data, int argc, char** argv, char** azColName
     return 0; 
 } 
 
+void print_row(RowValue &row, bool print){
+    for( auto && nm : (*row.m_schema).field_names()){
+        std::cout << nm << " ";
+    };
+    for (int j=0; j<(*row.m_schema).m_fields.size(); j++) {
+
+        if ((*row.m_schema).get(j).get_type() == sourbbn::FieldType::Integer){
+
+            std::cout << std::to_string(row.get(j).m_integer) << " ";
+        
+        } else if ((*row.m_schema).get(j).get_type() == sourbbn::FieldType::FloatingPoint) {
+
+            std::cout << row.get(j).m_floatingpoint << " ";
+
+        } else if ((*row.m_schema).get(j).get_type() == sourbbn::FieldType::Boolean) {
+        
+            std::cout << std::to_string( (int) row.get(j).m_boolean) << " ";
+
+        };
+
+    };
+    std::cout << std::endl;
+};
 
 void print_cptable(CPTable &cp_table, bool print){
 
@@ -55,7 +78,7 @@ void print_cptable(CPTable &cp_table, bool print){
 
 };
 
-//TODO: ELIM ERROR HANDLING
+
 std::vector<std::string> scheme_diff(RowSchema & s1, RowSchema & s2 ){
 
     std::vector<std::string> s1_names =  s1.field_names();
@@ -87,6 +110,74 @@ std::vector<std::string> scheme_diff(RowSchema & s1, RowSchema & s2 ){
     return(diff_names);
 };
 
+std::vector<std::string> scheme_overlap(RowSchema & s1, RowSchema & s2 ){
+
+    std::vector<std::string> s1_names =  s1.field_names();
+    std::vector<std::string> s2_names =  s2.field_names();
+
+    std::vector<std::string> overlap_names = {};
+    std::vector<std::string>::iterator it;
+
+    for(auto && s1_var : s1_names){
+        
+        it = find(s2_names.begin(),s2_names.end(),s1_var);
+        if ( it != s2_names.end() ){
+            overlap_names.push_back(s1_var);
+        }
+    }
+    return(overlap_names);
+};
+
+//TODO: this is currently very fragile
+CPTable expand(CPTable & t1, CPTable & t2){
+    
+    RowSchema t1_schema = t1.m_schema;
+    RowSchema t2_schema = t2.m_schema;
+
+    RowSchema t1_scheme = t1.scheme();
+    RowSchema t2_scheme = t2.scheme();
+    std::string p_string = "p";
+    int t1_p_index = 0;
+    FieldValue f1_val;
+
+    std::vector<std::string> overlap_vars =  scheme_overlap(t2_scheme,t1_scheme);
+    std::vector<std::string> expand_vars =  scheme_diff(t2_scheme,t1_scheme);
+
+    //a little sloppy, but okay
+    CPTable new_table = CPTable(t2);
+    
+    std::size_t match_indicator;
+    std::vector<RowValue>::iterator m_row_it;
+    int ov_t1;
+    int ov_t2;
+    for ( m_row_it = new_table.m_rows.begin();  m_row_it != new_table.m_rows.end(); ++m_row_it){
+
+        for (auto && cp_row_t1 : t1.m_rows){
+            
+            match_indicator = 0;
+            for (auto && ov_var : overlap_vars){
+
+                ov_t1 = t1_schema.get_index(ov_var);
+                ov_t2 = t2_schema.get_index(ov_var);
+
+                auto t1_val = cp_row_t1.get(ov_t1);
+                auto t2_val = (*m_row_it).get(ov_t2);
+                
+                //std::cout << std::to_string(t1_val.m_integer) << " compared to " <<  std::to_string(t2_val.m_integer) << std::endl;                
+                if(t1_val.m_integer == t2_val.m_integer){
+                    match_indicator += 1;
+                }
+            }
+            if(overlap_vars.size() == match_indicator ){
+                f1_val = cp_row_t1.get(t1_p_index);
+                (*m_row_it).reassign_field(p_string,f1_val);
+            }
+        }
+    }
+    return(new_table);
+};
+
+//TODO: ELIM ERROR HANDLING
 CPTable elim(CPTable &cp_table,std::string var){
 
     //find other variables that

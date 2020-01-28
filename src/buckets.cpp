@@ -137,9 +137,11 @@ float BucketList::BuckElim(){
             //print_cptable(temp_gj,false);    
             
             gj_index = max_index(temp_gj,variable_order_pi);
-
+           
             buckets[gj_index].append(temp_gj);
-
+            //std::cout << "RVAR = " << rvar << " sent to " << gj_index << std::endl;
+            //print_cptable(temp_gj,true);
+            
             g_var_it = find(variable_order_pi.begin(),variable_order_pi.end(),gj_index);
                     
             g_table_mark[*g_var_it].push_back(rvar);
@@ -169,28 +171,31 @@ void BucketList::BuckElimPlus(){
     RowSchema scheme_fij;
     RowSchema scheme_J;
     std::vector<std::string> elim_vars;
+    std::vector<std::string> expand_vars;
     CPTable deriv_ij;
     CPTable J;
+    CPTable expand_d_ij;
     std::size_t which_g;
-    
+    float unity = 1.0;
     for (std::size_t i = 0; i != variable_order_pi.size(); ++i ) {
         
         auto var_i = variable_order_pi[i];
-
+        
         if(i == 0){
+            //FieldValue constant_val = ;
 
             auto var_i_plus = variable_order_pi[i+1];
             deriv_g[var_i_plus] = buckets[var_i].bucket_tables[0];
-            deriv_g[var_i_plus].m_rows[0].add(0,1.0);
+            deriv_g[var_i_plus].m_rows[0].reassign_field("p",FieldValue(unity));//at(0) = 1.0;//add(0,1.0);
 
         } else {
             
             for (std::size_t j = 0; j < buckets[var_i].bucket_tables.size(); ++j ){
-                //std::cout << i << "," << j << std::endl;
+                
+                //buckets[var_i].print_bucket();
                 
                 J = d_join(deriv_g[var_i], buckets[var_i].bucket_tables, j);
-               
-               
+                
                 scheme_fij = buckets[var_i].bucket_tables.at(j).scheme();
                 
                 scheme_J = J.scheme();
@@ -198,7 +203,27 @@ void BucketList::BuckElimPlus(){
                 elim_vars = scheme_diff(scheme_J,scheme_fij);
                 
                 deriv_ij = elim(J,elim_vars);
-                              
+                /*if(var_i == "a"){// & deriv_ij.m_rows.at(0).get(0).m_floatingpoint > 0.000001){
+                    std::cout << "Bucket Tables:" << std::endl;
+                    buckets[var_i].print_bucket();
+                    std::cout << "Table F_" << var_i << "_"<<j<<":" << std::endl;
+                    print_cptable(buckets[var_i].bucket_tables.at(j),false);
+                    std::cout << "Deriv G table:" << std::endl;
+                    print_cptable(deriv_g[var_i],false);
+                    std::cout << "Table J:" << std::endl;
+                    print_cptable(J,false);
+                    //print_cptable(buckets[var_i].bucket_tables.at(j),false);
+                    std::cout << "Derivative table:" << std::endl;
+                    print_cptable(deriv_ij,false);
+                }*/
+                //if(deriv_ij.m_rows.size() != buckets[var_i].bucket_tables.at(j).m_rows.size() ){
+
+                    auto d_scheme = deriv_ij.scheme();
+                    expand_vars = scheme_overlap(scheme_fij,d_scheme);
+                    expand_d_ij = expand(deriv_ij,buckets[var_i].bucket_tables.at(j));
+                    deriv_ij = expand_d_ij;
+                //}
+               
                 if (j < original_size[var_i]){
 
                     if(j==0){
@@ -216,12 +241,18 @@ void BucketList::BuckElimPlus(){
                     }
 
                 } else {
-                    //For remaining buckets
-                    which_g = buckets[var_i].bucket_tables.size() - j;
+                    //For remaining buckets -- identify where g came from
+                    which_g = j - original_size[var_i]; //buckets[var_i].bucket_tables.size() - j;
 
-                    auto where_g_from = g_table_mark[var_i].at(which_g-1);
+                    auto where_g_from = g_table_mark[var_i].at(which_g);
 
                     deriv_g[where_g_from] = deriv_ij;
+                    /*
+                    if(var_i == "disease" & deriv_ij.m_rows.at(0).get(0).m_floatingpoint > 0.000001){
+                        std::cout << "original size was " << original_size[var_i] << std::endl;
+                        std::cout << "current index is " << j << std::endl;
+                        std::cout << "G was from " << where_g_from << std::endl; 
+                    }*/
 
                 } 
                     

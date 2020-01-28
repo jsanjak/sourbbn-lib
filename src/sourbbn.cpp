@@ -3,6 +3,7 @@
 //
 #include <string>
 #include <vector>
+#include <tuple>
 #include <memory>
 #include <iostream>
 #include <exception>
@@ -170,7 +171,7 @@ namespace sourbbn {
                                 //  Assign reduced table to maxIndex bucket for the bucket list for the query level
 
                             for(auto && tbl_name : cptable_names){
-
+                                
                                 header_query = "SELECT * FROM " + tbl_name + " LIMIT 1;";
                                 
                                 evidence_subset_query = "SELECT * FROM " + tbl_name + " WHERE ";
@@ -234,6 +235,8 @@ namespace sourbbn {
                                 
                                     evidence_bucket_list.buckets[ev_table_index].append(ev_temp_table);
                                     evidence_bucket_list.original_size[ev_table_index] += 1;
+
+                                    evi_buck_cptable_coords.push_back(std::make_tuple(ev_table_index, evidence_bucket_list.original_size[ev_table_index]-1));
                                 
                                 } else {
 
@@ -243,7 +246,7 @@ namespace sourbbn {
 
                                     evidence_bucket_list.buckets[ev_table_index] = ev_temp_bucket;
                                     evidence_bucket_list.original_size[ev_table_index] = 1;
-
+                                    evi_buck_cptable_coords.push_back(std::make_tuple(ev_table_index, 0));
                                 }
                                 
                                 //Query level BucketLists for each P( H = h_i | E = e )
@@ -285,6 +288,9 @@ namespace sourbbn {
                                     if (qb_it != query_bucket_lists.end()){                                        
                                         qb_it->second.buckets[temp_table_index].append(temp_table);
                                         qb_it->second.original_size[temp_table_index] += 1;
+                                        if(q_lev == *query_var_levels.begin()){
+                                            query_buck_cptable_coords.push_back(std::make_tuple(temp_table_index, qb_it->second.original_size[temp_table_index]-1));
+                                        }
                                     } else {
                                         //Can be moved constructed?
                                         query_bucket_lists[q_lev] = BucketList(cptable_names);
@@ -295,6 +301,10 @@ namespace sourbbn {
 
                                         query_bucket_lists[q_lev].buckets[temp_table_index] = temp_bucket;
                                         query_bucket_lists[q_lev].original_size[temp_table_index] = 1;
+
+                                        if(q_lev == *query_var_levels.begin()){
+                                            query_buck_cptable_coords.push_back(std::make_tuple(temp_table_index, 0));
+                                        }
                                     } 
                                 }
                                 ev_temp_table = CPTable();
@@ -386,8 +396,10 @@ namespace sourbbn {
                     
                     std::vector<float> temp_probs;
                     float der_joint;
-                    float der_p_h_e;
-                    float p_h_e;
+                    float der_p_h_cond_e;
+                    float der_p_e;
+                    float der_p_he;
+                    float p_h_cond_e;
                     float theta;
                     float var_theta_a;
                     float var_theta_b;
@@ -395,103 +407,200 @@ namespace sourbbn {
                     float sigma_sq_h_e;
                     std::vector<float> sigma;
                     float m_f;
+                    int q_ind;
+                    int e_ind;
+                    std::size_t match_indicator;
+                    int hyp_index_der;
+                    std::string q_hyp_lev;
+                    /*
+                    std::tuple<std::string, std::size_t> tuple_temp;
+                    for (std::size_t coord_ind=0; coord_ind != cptable_names.size();++coord_ind){
+                        tuple_temp =evi_buck_cptable_coords.at(coord_ind);
 
+                        std::cout << "Table " << cptable_names.at(coord_ind) << " is in evidence bucket " << std::get<0>(tuple_temp) 
+                        << " at position " << std::get<1>(tuple_temp);
+
+                        tuple_temp = query_buck_cptable_coords.at(coord_ind);
+
+                        std::cout << " and in query bucket " << std::get<0>(tuple_temp) 
+                        << " at position " << std::get<1>(tuple_temp)   << std::endl;
+                    
+                    }*/
+
+                    //evidence_bucket_list.print_buckets();
                     evidence_bucket_list.BuckElimPlus();
+                    //evidence_bucket_list.print_deriv_buckets();
                     
                     for (auto && q_lev : query_var_levels){
                         
                         //BuckElim+
                         query_bucket_lists[q_lev].BuckElimPlus();
                         
+                        /*if(q_lev == *query_var_levels.begin()){
+                            std::cout << "QUERY D-BUCKETS "<< std::endl; 
+                             query_bucket_lists[q_lev].print_deriv_buckets();
+                        }*/
+
                         //Now process the results
                         auto q_lev_it = std::find(query_var_levels.begin(),query_var_levels.end(),q_lev);
                         auto q_lev_i = q_lev_it - query_var_levels.begin();
 
-                        p_h_e = means.at(q_lev_i);
+                        p_h_cond_e = means.at(q_lev_i);
                         
                         sigma_sq_h_e = 0;
+                        
                         for(std::string rv : evidence_bucket_list.variable_order_pi){
 
-                            auto der_bucket = query_bucket_lists[q_lev].deriv_buckets[rv];
-                            auto orig_bucket = query_bucket_lists[q_lev].buckets[rv];
+                            auto der_bucket_q = query_bucket_lists[q_lev].deriv_buckets[rv];
+                            auto orig_bucket_q = query_bucket_lists[q_lev].buckets[rv];
+
+                            auto der_bucket_e = evidence_bucket_list.deriv_buckets[rv];
+                            auto orig_bucket_e = evidence_bucket_list.buckets[rv];
 
                             for(int table_i=0; table_i!=query_bucket_lists[q_lev].original_size[rv]; ++table_i){
                                 
-                                auto der_table  = der_bucket.bucket_tables.at(table_i);
-                                auto orig_table  = orig_bucket.bucket_tables.at(table_i);
+                                auto der_table_q  = der_bucket_q.bucket_tables.at(table_i);
+                                auto orig_table_q  = orig_bucket_q.bucket_tables.at(table_i);
 
-                                int p_index_der = der_table.m_schema.get_index("p");
-                                int p_index_orig = orig_table.m_schema.get_index("p");
-                                int m_index_orig = orig_table.m_schema.get_index("m");
-                                int dist_index_orig = orig_table.m_schema.get_index("dist");
+                                auto der_table_e  = der_bucket_e.bucket_tables.at(table_i);
+                                auto orig_table_e  = orig_bucket_e.bucket_tables.at(table_i);
+
+                                int p_index_der = der_table_e.m_schema.get_index("p");
+                                int p_index_orig = orig_table_e.m_schema.get_index("p");
+                                int m_index_orig = orig_table_e.m_schema.get_index("m");
+                                int dist_index_orig = orig_table_e.m_schema.get_index("dist");
+
+                                std::vector<std::string> table_i_vars =  der_table_e.scheme().field_names();
+                                std::vector<std::string>::iterator qe_it = std::find(table_i_vars.begin(),table_i_vars.end(),query_var);
+                                if(qe_it!=table_i_vars.end()){
+                                    hyp_index_der = der_table_e.m_schema.get_index(query_var);
+                                } else {
+                                    hyp_index_der = -1;
+                                }
                                 
                                 std::vector<RowValue>::iterator row_it;
                                 int dist_val=-1;
 
-                                for (row_it = orig_table.m_rows.begin(); row_it != orig_table.m_rows.end(); ++row_it){
+                                if(q_lev_i==0){
+                                    //print_cptable(orig_table_e,true);
+                                    //print_cptable(der_table_e,true);
+                                    //print_cptable(orig_table_q,true);
+                                    //print_cptable(der_table_q,true);
+                                }
+                                //Iterate through evidence only tables, which are by default greater
+                                //than or equal to evidence + hypothesis tables
+                                
+                                for (row_it = orig_table_e.m_rows.begin(); row_it != orig_table_e.m_rows.end(); ++row_it){
                                     
                                     int current_dist = (*row_it).get(dist_index_orig).m_integer;
-                                    int current_row = row_it - orig_table.m_rows.begin();
+                                    int current_row = row_it - orig_table_e.m_rows.begin();
+                                    
+                                    if(hyp_index_der == -1 ){
+                                        q_hyp_lev = q_lev;
+                                    } else {
+                                        q_hyp_lev = std::to_string((*row_it).get(hyp_index_der).m_integer);
+                                    }
+                                    
 
                                     theta = (*row_it).get(p_index_orig).m_floatingpoint;
-                                        //Not sure why this is working right now...should require match to der(P(E)) tables
-                                    der_joint = der_table.m_rows.at(current_row).get(p_index_der).m_floatingpoint;
+                                    
+                                    der_p_e = der_table_e.m_rows.at(current_row).get(p_index_der).m_floatingpoint;
+                                    der_p_he =  0;
+                                    if(q_hyp_lev == q_lev){
+                                        //get der_p_he by matching
+                                        for (auto && der_table_q_row : der_table_q.m_rows ){
+                                            
+                                            match_indicator = 0;
+                                            for(auto && tiv : table_i_vars){
 
-                                    der_p_h_e = (1.0/p_e)*(der_joint*(1 - p_h_e));
-                                   
+                                                e_ind = der_table_e.m_schema.get_index(tiv);
+
+                                                q_ind = der_table_q.m_schema.get_index(tiv);
+                                                
+                                                auto dte_val = der_table_e.m_rows.at(current_row).get(e_ind);
+
+                                                auto dtq_val = der_table_q_row.get(q_ind);
+
+                                                if(dte_val.m_integer == dtq_val.m_integer){
+                                                    match_indicator += 1;
+                                                }
+                                            }
+                                            if(table_i_vars.size() == match_indicator ){
+                                                //break
+                                                der_p_he = der_table_q_row.get(p_index_der).m_floatingpoint;
+                                                break;
+                                            }
+
+                                        }
+
+                                    }
+                                    //This is the key calculation
+                                    //der_p_he can be zero, if the current row
+                                    //does not correspond to the current query level
+                                    der_p_h_cond_e = (1.0/p_e)*(der_p_he - p_h_cond_e*der_p_e);
+
+                                    /*if(q_lev_i==1 ){
+                                        //print_cptable(orig_table_e,true);
+                                        std::cout <<"Dist True="<<current_dist<<", Dist val start="<< dist_val <<",P(level)=" << theta << ", p.e= "<< p_e << ", p.he="<< p_h_cond_e * p_e << ", der.e=" << der_p_e << ", der.h=" <<der_p_he ;
+                                        std::cout << ", der.he=" << der_p_h_cond_e <<  std::endl;
+                                    }*/
                                     if(dist_val == -1){
 
                                         dist_val = current_dist;
-                                        var_theta_a = std::pow(der_p_h_e,2.0)*theta;
-                                        var_theta_b = der_p_h_e*theta;
+                                        var_theta_a = std::pow(der_p_h_cond_e,2.0)*theta;
+                                        var_theta_b = der_p_h_cond_e*theta;
                                         m_f = (*row_it).get(m_index_orig).m_floatingpoint;
 
                                         //if last element -- implies 1 row
-                                        if(row_it == (orig_table.m_rows.end() - 1)  ){
-                                            var_theta = var_theta_a + std::pow(var_theta_b,2.0);
+                                        if(row_it == (orig_table_e.m_rows.end() - 1)  ){
+
+                                            var_theta = var_theta_a - std::pow(var_theta_b,2.0);
+                                            //std::cout << "Variance added: "<<  var_theta << ", m = " << m_f << std::endl; 
                                             sigma_sq_h_e += var_theta/(1.0 + m_f);
-                                            /*if (q_lev_i == 0){
-                                                std::cout << "deriv joint: " << der_joint << std::endl;
-                                                std::cout << "deriv condit: " << der_p_h_e << std::endl;
-                                                std::cout << "First var theta: " << var_theta_a << std::endl;
-                                                std::cout << "Seconds var theta: " << var_theta_b << std::endl;
-                                                std::cout << "m_f: " << m_f << std::endl;
-                                            }*/
-                                    
+                                            //std::cout << sigma_sq_h_e << std::endl;
                                         }
                                     } else {
                                         if(dist_val==current_dist){
                                             //Still in current dist
-                                            var_theta_a += std::pow(der_p_h_e,2.0)*theta;
-                                            var_theta_b += der_p_h_e*theta;
+                                            var_theta_a += std::pow(der_p_h_cond_e,2.0)*theta;
+                                            var_theta_b += der_p_h_cond_e*theta;
                                             m_f = (*row_it).get(m_index_orig).m_floatingpoint;
 
                                             //if last element -- implies multiple of same dist
-                                            if(row_it == (orig_table.m_rows.end() - 1)  ){
-                                                var_theta = var_theta_a + std::pow(var_theta_b,2.0);
+                                            if(row_it == (orig_table_e.m_rows.end() - 1)  ){
+                                                var_theta = var_theta_a - std::pow(var_theta_b,2.0);
+                                                
+                                                //std::cout << "Variance added: "<<  var_theta <<", m = " << m_f << std::endl; 
                                                 sigma_sq_h_e += var_theta/(1.0 + m_f);
+                                                //std::cout << sigma_sq_h_e << std::endl;
                                             }
                                         } else {
                                             //In new dist now -- finalize variance sum from prior dist
                                             dist_val = current_dist;
 
-                                            var_theta = var_theta_a + std::pow(var_theta_b,2.0);
+                                            var_theta = var_theta_a - std::pow(var_theta_b,2.0);
                                             
+                                            //std::cout << "Variance added: "<<  var_theta <<", m = " << m_f <<  std::endl; 
                                             sigma_sq_h_e += var_theta/(1.0 + m_f);
-                                            
+                                            //std::cout << sigma_sq_h_e << std::endl;
+
                                             m_f = (*row_it).get(m_index_orig).m_floatingpoint;
                                             //if last element -- implies finished on new dist
-                                            if(row_it == (orig_table.m_rows.end() - 1)  ){
+                                            if(row_it == (orig_table_e.m_rows.end() - 1)  ){
                                                 //Perform whole variance sum
-                                                var_theta_a = std::pow(der_p_h_e,2.0)*theta;
-                                                var_theta_b = der_p_h_e*theta;
-                                                var_theta = var_theta_a + std::pow(var_theta_b,2.0);
+                                                var_theta_a = std::pow(der_p_h_cond_e,2.0)*theta;
+                                                var_theta_b = der_p_h_cond_e*theta;
+                                                var_theta = var_theta_a - std::pow(var_theta_b,2.0);
+                                                //std::cout << "shold never be here" << std::endl;
+                                                //std::cout << "Variance added: "<<  var_theta <<", m = " << m_f <<  std::endl; 
                                                 sigma_sq_h_e += var_theta/(1.0 + m_f);
+                                                //std::cout << sigma_sq_h_e << std::endl;
                                         
                                             } else {
                                                 //if not last element -- implies starting a new dist
-                                                var_theta_a = std::pow(der_p_h_e,2.0)*theta;
-                                                var_theta_b = der_p_h_e*theta;
+                                                //std::cout << "Got here" << std::endl;
+                                                var_theta_a = std::pow(der_p_h_cond_e,2.0)*theta;
+                                                var_theta_b = der_p_h_cond_e*theta;
                                             }
                                         }
                                     }

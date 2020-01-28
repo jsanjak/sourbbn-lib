@@ -80,6 +80,7 @@ class RowValue {
     And so we have to enforce the schema upon construction of a 
     FieldValue 
     */
+    void reassign_field(const std::string fname, FieldValue fval);
     template<typename T> void push_check(T val);
     FieldValue& get(const int &i);
     void add(const int &i,const float & fv);
