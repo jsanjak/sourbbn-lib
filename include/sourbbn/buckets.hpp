@@ -37,22 +37,36 @@ struct Bucket {
   Bucket(std::string && bid);
   Bucket(std::string & bid,CPTable & b_tbl);
   Bucket(std::string && bid,CPTable & b_tbl);
+  Bucket(std::string && bid,CPTable && b_tbl);
+  Bucket(std::string & bid,CPTable && b_tbl);
   Bucket(std::string & bid,std::vector<CPTable> & b_tbls);
   Bucket(std::string && bid,std::vector<CPTable> & b_tbls);
   Bucket(std::string && bid,std::vector<CPTable> && b_tbls);
 
   void append(CPTable & b_tbl);
+  void print_bucket();
   //TODO Append table to bucket, ??Remove table??
 };
 
 struct BucketList {
 
+  bool eliminated = false;
+  std::unordered_map<std::string,int> original_size;
   std::vector<std::string> variable_order_pi;
   std::unordered_map<std::string,Bucket> buckets;
-
+  std::unordered_map<std::string,std::vector<std::string>> g_table_mark;
+  
+  std::unordered_map<std::string,CPTable> deriv_g;
+  std::unordered_map<std::string,Bucket> deriv_buckets; 
+  
   BucketList();
   BucketList(std::vector<std::string> & pi);
+  
   float BuckElim();
+  
+  void BuckElimPlus();
+  void print_buckets();
+  void print_deriv_buckets();
 
 };
 

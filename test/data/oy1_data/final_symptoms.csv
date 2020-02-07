@@ -1,0 +1,72 @@
+Symptom Group,Code,Component Symptoms,Notes,Cluster
+Ulcer / Eschar,ULCR,Ulcer / Eschar,-,1
+Rash (Erythema migrans),EMRA,Rash (erythema migrans),-,1
+Rash (Non-erythema migrans),OTHR,Any non-erythema migrans rash,-,1
+Fever / Chills / Night Sweats,FEVR,Chills,A feeling of coldness that often occurs with a high fever,2
+Fever / Chills / Night Sweats,FEVR,Fever,Body temperature greater than 100.4°F,2
+Fever / Chills / Night Sweats,FEVR,Night Sweats,Excessive sweating during sleep,2
+Relapsing Fever,RLPS,Relapsing Fever,A fever (temperature greater than 100.4°F) which recurs after a fever-free interval of at least one day. Relapses can occur multiple times in some TBDs.,2
+Malaise / Fatigue / Lethargy / Weakness,WEAK,Fatigue / Lethargy,"Extreme tiredness or exhaustion and/or a lack of energy and enthusiasm. (This symptom should be distinguished from drowsiness/somnolence, which refer specifically to a feeling of sleepiness)",2
+Malaise / Fatigue / Lethargy / Weakness,WEAK,Malaise,A general feeling of discomfort or uneasiness,2
+Malaise / Fatigue / Lethargy / Weakness,WEAK,Generalized weakness,Muscle weakness throughout the entire body,2
+Myalgia / General Muscle Aches,MYLG,Body aches,Generalized / non-specific body aches,3
+Myalgia / General Muscle Aches,MYLG,Myalgia,"Muscle pain, achiness, soreness, or tenderness",3
+Joint Involvement,JNTP,Arthralgia,Joint pain,3
+Joint Involvement,JNTP,Joint Swelling,Swelling in the joints,3
+Back Pain,BACK,Back Pain,Back pain of any severity,3
+Chest Pain,CHST,Chest Pain,Chest pain of any severity,3
+Headache,HEAD,Headache,Headache of any severity,4
+Decreased Hearing,HEAR,Decreased Hearing,Partial or complete hearing loss,4
+Ocular pain/involvement,CONJ,Red Eyes,"Reddening of the eye(s), caused by a condition such as conjunctivitis, subconjunctival hemorrhage, etc.",4
+Ocular pain/involvement,CONJ,Eye Pain,"Pain in the eye(s) with no external cause. This symptom should be distinguished from photophobia, which is eye pain that results from exposure to light.",4
+Cough,COUG,Cough,"Rapid expulsion of air from the lungs, usually to clear the airways",5
+Respiratory Manifestations,RESP,Dyspnea,Shortness of breath; difficult or labored breathing,5
+Respiratory Manifestations,RESP,Respiratory distress or failure,"Inability of the lungs to perform their basic function of oxygenation, leading to difficult and labored breathing",5
+Sore Throat / Pharyngitis,THRT,Sore Throat,Pain in the throat,5
+Sore Throat / Pharyngitis,THRT,Pharyngitis,Inflammation of the pharynx,5
+Abdominal Pain or Tenderness,ABDM,Abdominal pain,Pain in the abdomen of any severity,6
+Abdominal Pain or Tenderness,ABDM,Abdominal tenderness,Tenderness or pain in the abdomen when touched,6
+Constipation,CNST,Constipation,Infrequent and/or incomplete bowel movements,6
+Decreased Appetite / Weight Loss,ANOR,Anorexia (Decreased Appetite),Reduced appetite or aversion to food,6
+Decreased Appetite / Weight Loss,ANOR,Weight Loss,Reduction in overall body mass,6
+Gastrointestinal Disturbances,GIDS,Diarrhea,Unusually frequent and loose/liquid bowel movements,6
+Gastrointestinal Disturbances,GIDS,Nausea,Stomach distress or queasiness with an urge to vomit,6
+Gastrointestinal Disturbances,GIDS,Vomiting,Forceful expulsion of stomach contents via the mouth,6
+Lymphadenopathy,LYMP,Lymphadenopathy,Presence of swollen or enlarged lymph nodes,7
+Jaundice,JAUN,Jaundice,Yellowing of the skin and/or sclera (whites of the eyes) due to abnormally high blood levels of bilirubin,7
+Dark Urine,URIN,Dark urine,Abnormally dark or brownish urine,7
+Hepatomegaly,HEPA,Hepatomegaly,Enlarged liver,7
+Splenomegaly,SPLN,Splenomegaly,Enlarged spleen,7
+Edema (periorbital),EDPO,Periorbital edema,"Swelling or ""puffiness"" around the eyes",7
+Edema (peripheral),EDPR,Peripheral edema,"Swelling in tissues perfused by the peripheral vascular system (arms, legs, hands, or feet)",7
+Concentration or Memory Deficits,CONC,Concentration deficit,Any deficits in the ability to concentrate,8
+Concentration or Memory Deficits,CONC,Memory Impairment,Any deficits in memory,8
+Dizziness / Balance Disturbances,DIZZ,Disturbed balance,A feeling of unsteadiness while standing or walking,8
+Dizziness / Balance Disturbances,DIZZ,Dizziness,"A range of sensations such as feeling faint, woozy, weak, unsteady, or lightheaded",8
+Dizziness / Balance Disturbances,DIZZ,Vertigo,A sense of dizziness in which the surroundings appear to be spinning or moving,8
+Speech Deficits,SPCH,Aphasia,Partial or complete loss in the ability to produce or understand verbal or written communication,9
+Speech Deficits,SPCH,Slow / slurred speech,Slow or slurred speech (could be caused by a condition such as dysarthria),9
+Cranial Neuropathies,CRAN,Bell's / Facial Palsy,Paralysis of cranial nerves resulting in weakness in the facial muscles on one half of the face,9
+Cranial Neuropathies,CRAN,Blurred Vision,"Blurred vision, likely caused by a cranial neuropathy such as ophthalmoplegia",9
+Cranial Neuropathies,CRAN,Other cranial neuropathies,Any nerve disorder affecting one or more of the cranial nerves,9
+Altered Mental Status,ALTR,Coma,A state of unconsciousness or decreased consciousness from which the patient cannot be aroused,10
+Altered Mental Status,ALTR,Confusion,A state of disorientation in which the patient feels that they cannot think clearly,10
+Altered Mental Status,ALTR,Delirium,A sudden state of severe confusion or disorientation,10
+Altered Mental Status,ALTR,Depressed Mentation,A depressed and dysphoric mood,10
+Altered Mental Status,ALTR,Drowsiness / Somnolence,"A strong feeling of a need to sleep. (This symptom should be distinguished from fatigue and lethargy, which are characterized by exhaustion and a lack of energy)",10
+Altered Mental Status,ALTR,Emotional Lability,"Rapid, exaggerated changes in mood",10
+Altered Mental Status,ALTR,Hallucinations,"Abnormal perception or sensory impression (visual image, sound, etc.) that has no external cause",10
+Altered Mental Status,ALTR,Irritability,A state of frustration or agitation,10
+Altered Mental Status,ALTR,Stupor,A state of impaired consciousness during which the patient shows limited response to environmental stimuli,10
+Altered Mental Status,ALTR,Seizures,"A sudden attack caused by abnormal electrical activity in the brain, characterized by convulsions and/or disturbances in brain function",10
+Meningism,MNNG,Meningism,"A triad of three symptoms indicating meningitis - nuchal rigidity (stiff neck), headache, and photophobia",11
+Meningism,MNNG,Pain on neck flexion,Pain resulting from flexing the neck,11
+Meningism,MNNG,Photophobia,An experience of discomfort or pain in the eyes when exposed to light,11
+Meningism,MNNG,Stiff Neck,Impaired neck flexion resulting from spasms in the neck muscles,11
+Focal Neurological Deficits,FOCL,Ataxia,Lack of muscle control or coordination often leading to unsteadiness or an impaired ability to move,12
+Focal Neurological Deficits,FOCL,Dysesthesia,A painful or otherwise unpleasant or abnormal sense of touch,12
+Focal Neurological Deficits,FOCL,Hemiplegia,"Weakness or paralysis of one side of the body that is not localized to the face (should not be confused with a cranial nerve palsy causing facial paralysis, such as Bell's palsy)",12
+Focal Neurological Deficits,FOCL,Limb Weakness,Localized weakness or paralysis of specific limbs,12
+Focal Neurological Deficits,FOCL,Paresthesias,"A sensation of tingling or numbness in the skin with no objective cause, usually associated with nerve injury or irritation",12
+Focal Neurological Deficits,FOCL,Other focal deficits,Other neurologic deficit(s) affecting a specific location of the body,12
+Asplenic,ASPL,Asplenia,Lack of a spleen,13
