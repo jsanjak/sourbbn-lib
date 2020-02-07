@@ -84,19 +84,6 @@ std::vector<std::string> scheme_diff(RowSchema & s1, RowSchema & s2 ){
     std::vector<std::string> s1_names =  s1.field_names();
     std::vector<std::string> s2_names =  s2.field_names();
 
-    /*
-    std::cout << "J Names:";
-    for (auto s1n : s1_names){
-        std::cout << s1n << " ";
-    }
-    std::cout << std::endl;
-
-    std::cout << "f_ij Names:";
-    for (auto s2n : s2_names){
-        std::cout << s2n << " ";
-    }
-    std::cout << std::endl;
-    */
     std::vector<std::string> diff_names = {};
     std::vector<std::string>::iterator it;
 
@@ -163,7 +150,6 @@ CPTable expand(CPTable & t1, CPTable & t2){
                 auto t1_val = cp_row_t1.get(ov_t1);
                 auto t2_val = (*m_row_it).get(ov_t2);
                 
-                //std::cout << std::to_string(t1_val.m_integer) << " compared to " <<  std::to_string(t2_val.m_integer) << std::endl;                
                 if(t1_val.m_integer == t2_val.m_integer){
                     match_indicator += 1;
                 }
@@ -492,10 +478,6 @@ CPTable d_join(CPTable dg_table,const std::vector<CPTable> & tables, std::size_t
         return dg_table;
 
     } else if (tables.size() == 1){
-
-        //CPTable tbl_a = tables.at(0);
-        
-        //tbl_a = join(dg_table,tbl_a);
 
         return dg_table ;
 

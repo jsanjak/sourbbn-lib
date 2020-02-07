@@ -171,4 +171,20 @@ int main(){
         std::cout << first_std.at(i) << std::endl;
     }
 
+    sourbbn::Sourbbn fake_bbn(diamond_path,true);
+    fake_bbn.set_query(header_values,data_values,disease_var);
+        
+    fake_bbn.calc_standard_devs();
+    first_means = fake_bbn.read_means();
+    first_std = fake_bbn.read_standard_devs();
+    first_names= fake_bbn.read_query_names();
+    
+    std::cout << "Mean, Std. Dev: " << std::endl;;
+    for (std::size_t i=0;i!=first_means.size(); ++i){
+        std::cout << first_names.at(i) <<": " ;
+        std::cout << first_means.at(i) << ',';
+        std::cout << first_std.at(i) << std::endl;
+    }
+
+
 }

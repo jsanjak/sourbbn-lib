@@ -96,28 +96,28 @@ namespace sourbbn {
                 const std::vector<std::string> & e_vars, 
                 const std::vector<int> & e_values, 
                 const std::string & q_var){
+                if (fake){
+
+                    query_var_levels = {"Anaplasmosis","Babesiosis","Bmi","CTF","Ehrlichiosis","LD","Powassan","SFGR","TBRF","Tularemia"};
                 
-                if ( ! query_bucket_lists.empty() ){
-                    query_bucket_lists.clear();
-                }
-                if ( e_vars.size()==e_values.size()){
-                    
-                    int can_read = 0;
-                    char *zErrMsg = 0;
-                    sqlite3* DB;
-                    can_read = sqlite3_open(db_path.c_str(), &DB);
+                } else {
 
-                    if (can_read==0){
-                        //Confirm can open and read db
-                        evidence_vars = e_vars;
-                        evidence_values = e_values;
-                        query_var = q_var;
+                    if ( ! query_bucket_lists.empty() ){
+                        query_bucket_lists.clear();
+                    }
+                    if ( e_vars.size()==e_values.size()){
+                        
+                        int can_read = 0;
+                        char *zErrMsg = 0;
+                        sqlite3* DB;
+                        can_read = sqlite3_open(db_path.c_str(), &DB);
 
-                        if (fake){
+                        if (can_read==0){
+                            //Confirm can open and read db
+                            evidence_vars = e_vars;
+                            evidence_values = e_values;
+                            query_var = q_var;
 
-                            query_var_levels = {"anaplasmosis","rickettsiosis","lyme_disease", "ehrlichiosis"};
-
-                        } else {
                             
                             evidence_bucket_list = BucketList(cptable_names);
 
@@ -217,10 +217,8 @@ namespace sourbbn {
 
                                 evidence_only_query += ";";
 
-                                std::cout << evidence_only_query <<std::endl;
-
                                 ev_temp_table.m_rows.clear();
-                                 
+                                    
                                 sqlite3_exec(DB, 
                                         evidence_only_query.c_str(), 
                                         ev_temp_table.data_callback, 
@@ -230,7 +228,7 @@ namespace sourbbn {
                                 
                                 auto eb_it = evidence_bucket_list.buckets.find(ev_table_index);
                                 
-                               
+                                
                                 if (eb_it != evidence_bucket_list.buckets.end() ){
                                 
                                     evidence_bucket_list.buckets[ev_table_index].append(ev_temp_table);
@@ -267,7 +265,7 @@ namespace sourbbn {
                                         query_subset_query += query_temp;
                                         
                                         temp_table.m_rows.clear();
-                                        std::cout << query_subset_query << std::endl;
+
                                         sqlite3_exec(DB, 
                                         query_subset_query.c_str(), 
                                         temp_table.data_callback, 
@@ -276,7 +274,7 @@ namespace sourbbn {
                                     } else if (q_lev == query_var_levels[0] ){
 
                                         query_subset_query += ";";
-                                        std::cout << query_subset_query << std::endl;
+
                                         sqlite3_exec(DB, 
                                         query_subset_query.c_str(), 
                                         temp_table.data_callback, 
@@ -316,25 +314,24 @@ namespace sourbbn {
                                 temp_table = CPTable();
                             }
                             
+                        } else {
+
+                            throw std::invalid_argument("Invalid SQLite3 database");
+
                         }
+                        
+                        sqlite3_close(DB);
                     } else {
 
-                        throw std::invalid_argument("Invalid SQLite3 database");
+                        throw std::invalid_argument("Evidence variables and values are of different length");
 
                     }
-                    
-                     
-                    sqlite3_close(DB);
-                } else {
-
-                    throw std::invalid_argument("Evidence variables and values are of different length");
-
                 }
-            //If we didn't fail, then state that new means 
-            //have not be determined
-            //query_bucket_lists[ query_var_levels[0]].print_buckets();   
-            means_calc = false;
-            query_set = true;
+                //If we didn't fail, then state that new means 
+                //have not be determined
+                //query_bucket_lists[ query_var_levels[0]].print_buckets();   
+                means_calc = false;
+                query_set = true;
             
             };
             
@@ -346,16 +343,13 @@ namespace sourbbn {
                     - Cannot be run without setting a query variable
                 */
                 if(fake){
-
-                    means = {0.7,0.24,0.05,0.01};
+                    //query_var_levels = {"Anaplasmosis","Babesiosis","Bmi","CTF","Ehrlichiosis","LD","Powassan","SFGR","TBRF","Tularemia"};
+                    means = {0.002,0.945,0.030,0.000,0.017,0.004,0.002,0.000,0.000,0.000};
 
                 } else {
-                    //Put real implementation here
-
-                    //#For each level of the query variable
+                    //For each level of the query variable
                     //calulate P( H=q_lev | E=evidence)
                     //Normalize to obtain conditional probabilities
-                    //BucketList
                     means.clear();
                     float p_h_e;
                     for (auto && q_lev : query_var_levels){
@@ -366,7 +360,6 @@ namespace sourbbn {
 
                     }
                     p_e = std::accumulate(means.begin(), means.end(), 0.0);
-                    //std::cout << "Elim Answer:" << sum << std::endl;
                     for ( int iv = 0; iv < means.size(); ++iv ){
                         means[iv] /= p_e;
                         
@@ -380,8 +373,21 @@ namespace sourbbn {
            void calc_standard_devs(){
                 //TODO ERROR AND STATE HANDLING
                 if(fake){
+                    
+                    standard_devs.clear();
+                    if( ! means_calc ){
+                        if(query_set){
 
-                    standard_devs = {0.1,0.05,0.01,0.005};
+                            this->calc_means();
+                    
+                        } else {
+
+                            throw std::invalid_argument("Query not set yet.");
+                    
+                        }
+                    }
+                        //query_var_levels = {"Anaplasmosis","Babesiosis","Bmi","CTF","Ehrlichiosis","LD","Powassan","SFGR","TBRF","Tularemia"};
+                        standard_devs = {0.006,0.136,0.11,0.000,0.04,0.01,0.006,0.001,0.001,0.001};
                 
                 } else {
                     //Put real implementation here
@@ -417,35 +423,14 @@ namespace sourbbn {
                     std::size_t match_indicator;
                     int hyp_index_der;
                     std::string q_hyp_lev;
-                    /*
-                    std::tuple<std::string, std::size_t> tuple_temp;
-                    for (std::size_t coord_ind=0; coord_ind != cptable_names.size();++coord_ind){
-                        tuple_temp =evi_buck_cptable_coords.at(coord_ind);
 
-                        std::cout << "Table " << cptable_names.at(coord_ind) << " is in evidence bucket " << std::get<0>(tuple_temp) 
-                        << " at position " << std::get<1>(tuple_temp);
-
-                        tuple_temp = query_buck_cptable_coords.at(coord_ind);
-
-                        std::cout << " and in query bucket " << std::get<0>(tuple_temp) 
-                        << " at position " << std::get<1>(tuple_temp)   << std::endl;
-                    
-                    }*/
-
-                    //evidence_bucket_list.print_buckets();
                     evidence_bucket_list.BuckElimPlus();
-                    //evidence_bucket_list.print_deriv_buckets();
                     
                     for (auto && q_lev : query_var_levels){
                         
                         //BuckElim+
                         query_bucket_lists[q_lev].BuckElimPlus();
                         
-                        /*if(q_lev == *query_var_levels.begin()){
-                            std::cout << "QUERY D-BUCKETS "<< std::endl; 
-                             query_bucket_lists[q_lev].print_deriv_buckets();
-                        }*/
-
                         //Now process the results
                         auto q_lev_it = std::find(query_var_levels.begin(),query_var_levels.end(),q_lev);
                         auto q_lev_i = q_lev_it - query_var_levels.begin();
@@ -486,12 +471,6 @@ namespace sourbbn {
                                 std::vector<RowValue>::iterator row_it;
                                 int dist_val=-1;
 
-                                if(q_lev_i==0){
-                                    //print_cptable(orig_table_e,true);
-                                    //print_cptable(der_table_e,true);
-                                    //print_cptable(orig_table_q,true);
-                                    //print_cptable(der_table_q,true);
-                                }
                                 //Iterate through evidence only tables, which are by default greater
                                 //than or equal to evidence + hypothesis tables
                                 
@@ -512,6 +491,7 @@ namespace sourbbn {
                                     der_p_e = der_table_e.m_rows.at(current_row).get(p_index_der).m_floatingpoint;
                                     der_p_he =  0;
                                     if(q_hyp_lev == q_lev){
+
                                         //get der_p_he by matching
                                         for (auto && der_table_q_row : der_table_q.m_rows ){
                                             
@@ -531,9 +511,10 @@ namespace sourbbn {
                                                 }
                                             }
                                             if(table_i_vars.size() == match_indicator ){
-                                                //break
+
                                                 der_p_he = der_table_q_row.get(p_index_der).m_floatingpoint;
                                                 break;
+                                            
                                             }
 
                                         }
@@ -544,11 +525,6 @@ namespace sourbbn {
                                     //does not correspond to the current query level
                                     der_p_h_cond_e = (1.0/p_e)*(der_p_he - p_h_cond_e*der_p_e);
 
-                                    /*if(q_lev_i==1 ){
-                                        //print_cptable(orig_table_e,true);
-                                        std::cout <<"Dist True="<<current_dist<<", Dist val start="<< dist_val <<",P(level)=" << theta << ", p.e= "<< p_e << ", p.he="<< p_h_cond_e * p_e << ", der.e=" << der_p_e << ", der.h=" <<der_p_he ;
-                                        std::cout << ", der.he=" << der_p_h_cond_e <<  std::endl;
-                                    }*/
                                     if(dist_val == -1){
 
                                         dist_val = current_dist;
@@ -560,9 +536,9 @@ namespace sourbbn {
                                         if(row_it == (orig_table_e.m_rows.end() - 1)  ){
 
                                             var_theta = var_theta_a - std::pow(var_theta_b,2.0);
-                                            //std::cout << "Variance added: "<<  var_theta << ", m = " << m_f << std::endl; 
+
                                             sigma_sq_h_e += var_theta/(1.0 + m_f);
-                                            //std::cout << sigma_sq_h_e << std::endl;
+
                                         }
                                     } else {
                                         if(dist_val==current_dist){
@@ -573,37 +549,34 @@ namespace sourbbn {
 
                                             //if last element -- implies multiple of same dist
                                             if(row_it == (orig_table_e.m_rows.end() - 1)  ){
+
                                                 var_theta = var_theta_a - std::pow(var_theta_b,2.0);
                                                 
-                                                //std::cout << "Variance added: "<<  var_theta <<", m = " << m_f << std::endl; 
                                                 sigma_sq_h_e += var_theta/(1.0 + m_f);
-                                                //std::cout << sigma_sq_h_e << std::endl;
+
                                             }
+
                                         } else {
                                             //In new dist now -- finalize variance sum from prior dist
                                             dist_val = current_dist;
 
                                             var_theta = var_theta_a - std::pow(var_theta_b,2.0);
                                             
-                                            //std::cout << "Variance added: "<<  var_theta <<", m = " << m_f <<  std::endl; 
                                             sigma_sq_h_e += var_theta/(1.0 + m_f);
-                                            //std::cout << sigma_sq_h_e << std::endl;
 
                                             m_f = (*row_it).get(m_index_orig).m_floatingpoint;
+
                                             //if last element -- implies finished on new dist
                                             if(row_it == (orig_table_e.m_rows.end() - 1)  ){
+
                                                 //Perform whole variance sum
                                                 var_theta_a = std::pow(der_p_h_cond_e,2.0)*theta;
                                                 var_theta_b = der_p_h_cond_e*theta;
                                                 var_theta = var_theta_a - std::pow(var_theta_b,2.0);
-                                                //std::cout << "shold never be here" << std::endl;
-                                                //std::cout << "Variance added: "<<  var_theta <<", m = " << m_f <<  std::endl; 
                                                 sigma_sq_h_e += var_theta/(1.0 + m_f);
-                                                //std::cout << sigma_sq_h_e << std::endl;
                                         
                                             } else {
                                                 //if not last element -- implies starting a new dist
-                                                //std::cout << "Got here" << std::endl;
                                                 var_theta_a = std::pow(der_p_h_cond_e,2.0)*theta;
                                                 var_theta_b = der_p_h_cond_e*theta;
                                             }
@@ -615,7 +588,7 @@ namespace sourbbn {
                         sigma.push_back(std::sqrt(sigma_sq_h_e));
                     }
                     
-                    standard_devs = sigma;//{0.2,0.2};
+                    standard_devs = sigma;
 
                 } 
 
@@ -643,17 +616,6 @@ namespace sourbbn {
                 return(standard_devs);
             };
 
-            /*CPTable& get_table(std::string & tbl_name){
-
-                return(cptables.at(tbl_name));
-
-            };
-
-            CPTable& get_table(std::string && tbl_name){
-
-                return(cptables.at(tbl_name));
-
-            };*/
     };
 
     Sourbbn::Sourbbn(const std::string &db_path) : sourbbn_pimpl {  new sourbbn_impl(db_path) }{}
@@ -675,9 +637,6 @@ namespace sourbbn {
     std::vector<std::string> Sourbbn::read_query_names(){ return sourbbn_pimpl->read_query_names();}
     std::vector<float> Sourbbn::read_standard_devs(){ return sourbbn_pimpl->read_standard_devs();}
     
-    //CPTable& Sourbbn::get_table(std::string & tbl_name){ return sourbbn_pimpl->get_table(tbl_name);}
-    //CPTable& Sourbbn::get_table(std::string && tbl_name){ return sourbbn_pimpl->get_table(tbl_name);}
-
-    //For now, but in the long run we may need custom
+    //Default for now, but in the long run we may need custom
     Sourbbn::~Sourbbn() = default;
 }

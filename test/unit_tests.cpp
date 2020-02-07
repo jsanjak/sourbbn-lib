@@ -61,7 +61,7 @@ TEST_CASE("Public API"){
    
     std::vector<float> test_means = test_bbn.read_means();
     
-    /*TODO -- Standard Deviation Calculation
+    
     test_bbn.calc_standard_devs();
     std::vector<float> test_standard_devs = test_bbn.read_standard_devs();
     
@@ -85,7 +85,7 @@ TEST_CASE("Public API"){
     for (auto & qn: test_query_names) {
        std::cout<< qn << " ";
     };
-    std::cout << std::endl;*/
+    std::cout << std::endl;
     
 }
 
