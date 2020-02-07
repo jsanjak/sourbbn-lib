@@ -174,7 +174,7 @@ namespace sourbbn {
                                 
                                 header_query = "SELECT * FROM " + tbl_name + " LIMIT 1;";
                                 
-                                evidence_subset_query = "SELECT * FROM " + tbl_name + " WHERE ";
+                                evidence_subset_query = "SELECT * FROM " + tbl_name;
 
                                 sqlite3_exec(DB, 
                                 header_query.c_str(), 
@@ -198,7 +198,7 @@ namespace sourbbn {
 
                                             if (ev_in_table == 0){
 
-                                                condition_temp = evidence_vars[ev_i] + " = " + std::to_string(evidence_values[ev_i]);
+                                                condition_temp = " WHERE " + evidence_vars[ev_i] + " = " + std::to_string(evidence_values[ev_i]);
                                                 
                                             } else {
                                                 //TODO: add in OR values for soft evidence
@@ -206,7 +206,7 @@ namespace sourbbn {
                                             
                                             }
                                             ev_in_table+=1;
-                                            evidence_subset_query += condition_temp;
+                                            evidence_subset_query += condition_temp ;
 
                                     }
 
@@ -217,7 +217,7 @@ namespace sourbbn {
 
                                 evidence_only_query += ";";
 
-                                //std::cout << evidence_only_query <<std::endl;
+                                std::cout << evidence_only_query <<std::endl;
 
                                 ev_temp_table.m_rows.clear();
                                  
@@ -257,12 +257,17 @@ namespace sourbbn {
                                     std::string query_subset_query(evidence_subset_query);
 
                                     if (qvar_it != temp_table_names.end()){
-
-                                        query_temp = " AND " + query_var + " = " + q_lev + ";";
+                                        
+                                        if(ev_in_table == 0){
+                                            query_temp = " WHERE " + query_var + " = " + q_lev + ";";
+                                        } else {
+                                            query_temp = " AND " + query_var + " = " + q_lev + ";";
+                                        }
+                                        
                                         query_subset_query += query_temp;
                                         
                                         temp_table.m_rows.clear();
-                                
+                                        std::cout << query_subset_query << std::endl;
                                         sqlite3_exec(DB, 
                                         query_subset_query.c_str(), 
                                         temp_table.data_callback, 
@@ -271,7 +276,7 @@ namespace sourbbn {
                                     } else if (q_lev == query_var_levels[0] ){
 
                                         query_subset_query += ";";
-
+                                        std::cout << query_subset_query << std::endl;
                                         sqlite3_exec(DB, 
                                         query_subset_query.c_str(), 
                                         temp_table.data_callback, 
