@@ -99,7 +99,8 @@ namespace sourbbn {
                 if (fake){
 
                     query_var_levels = {"Anaplasmosis","Babesiosis","Bmi","CTF","Ehrlichiosis","LD","Powassan","SFGR","TBRF","Tularemia"};
-                
+                    evidence_vars = e_vars;
+                    evidence_values = e_values;
                 } else {
 
                     if ( ! query_bucket_lists.empty() ){
@@ -343,8 +344,36 @@ namespace sourbbn {
                     - Cannot be run without setting a query variable
                 */
                 if(fake){
+                    
                     //query_var_levels = {"Anaplasmosis","Babesiosis","Bmi","CTF","Ehrlichiosis","LD","Powassan","SFGR","TBRF","Tularemia"};
-                    means = {0.002,0.945,0.030,0.000,0.017,0.004,0.002,0.000,0.000,0.000};
+                    if( evidence_values[0] == 0){
+                        //Pure fake data
+                        
+                        means = {0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1};
+                    
+                    } else if ( evidence_values[0] == 21 ) {
+
+                        //Maryland cases
+                        if( evidence_values[1] == 0){
+                            //1a
+                             means = {0.012,0.486,0.071,0.000,0.097,0.02,0.012,0.042,0.003,0.077};
+
+                        } else {
+                            //1b
+                            means = {0.002,0.945,0.030,0.000,0.017,0.004,0.002,0.000,0.000,0.000};
+                            
+                        }
+                        
+                    } else if (evidence_values[0] == 26 ){
+
+                        means = {0.000,0.000,0.000,0.000,0.024,0.004,0.000,0.000,0.000,0.972};
+
+                    } else {
+
+                        means = {0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1};
+                    
+                    }
+                   
 
                 } else {
                     //For each level of the query variable
@@ -387,8 +416,34 @@ namespace sourbbn {
                         }
                     }
                         //query_var_levels = {"Anaplasmosis","Babesiosis","Bmi","CTF","Ehrlichiosis","LD","Powassan","SFGR","TBRF","Tularemia"};
-                        standard_devs = {0.006,0.136,0.11,0.000,0.04,0.01,0.006,0.001,0.001,0.001};
-                
+                        
+                            //query_var_levels = {"Anaplasmosis","Babesiosis","Bmi","CTF","Ehrlichiosis","LD","Powassan","SFGR","TBRF","Tularemia"};
+                        if( evidence_values[0] == 0){
+                            //Pure fake data
+                            standard_devs = {0.025,0.025,0.025,0.025,0.025,0.025,0.025,0.025,0.025,0.025};
+                        
+                        } else if ( evidence_values[0] == 21 ) {
+
+                            //Maryland cases
+                            if( evidence_values[1] == 0){
+                                //1a
+                                standard_devs = {0.025,0.436,0.209,0.001,0.145,0.252,0.038,0.066,0.011,0.163};
+
+                            } else {
+                                //1b
+                                standard_devs = {0.006,0.136,0.11,0.000,0.04,0.01,0.006,0.001,0.001,0.001};
+                                
+                            }
+                            
+                        } else if (evidence_values[0] == 26){
+                            //Missouri case
+                            standard_devs = {0.000,0.000,0.000,0.000,0.036,0.009,0.000,0.000,0.000,0.042};
+
+                        } else {
+
+                            standard_devs = {0.025,0.025,0.025,0.025,0.025,0.025,0.025,0.025,0.025,0.025};
+                        
+                        }
                 } else {
                     //Put real implementation here
                     standard_devs.clear();
