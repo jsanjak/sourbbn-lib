@@ -213,7 +213,7 @@ namespace sourbbn {
 
                                 }
                                 
-                                //Evidence Only BucketList for  P( E=e )
+                                //Evidence Only BucketList for  P( E = e )
                                 std::string evidence_only_query(evidence_subset_query);
 
                                 evidence_only_query += ";";
@@ -388,8 +388,11 @@ namespace sourbbn {
                         means.push_back(p_h_e);
 
                     }
+
                     p_e = std::accumulate(means.begin(), means.end(), 0.0);
+                    
                     for ( int iv = 0; iv < means.size(); ++iv ){
+
                         means[iv] /= p_e;
                         
                     }

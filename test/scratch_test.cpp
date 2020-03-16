@@ -141,7 +141,7 @@ int main(){
     std::vector<float> first_std;
     std::vector<std::string> first_names;
 
-    std::string net_type = "diamond";
+    std::string net_type = "tbd";
     if(net_type=="diamond"){
         sourbbn::Sourbbn oy1_bbn(diamond_path,false);
         std::vector<std::string> cptable_names = oy1_bbn.read_cptable_names();
