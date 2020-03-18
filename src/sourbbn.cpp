@@ -73,7 +73,9 @@ namespace sourbbn {
                         //Obtain the list of data tables
                         std::string data_table_query("SELECT name FROM sqlite_master WHERE \
                                                 type ='table' AND name NOT LIKE 'sqlite_%' \
-                                                AND name NOT LIKE '%_link';");
+                                                AND name NOT LIKE '%_link' \
+                                                AND name NOT LIKE 'sqlite_sequence' \
+                                                AND name NOT LIKE 'android_metadata' ;");
 
 
                         sqlite3_exec(DB, 
