@@ -348,7 +348,12 @@ namespace sourbbn {
                 if(fake){
                     
                     //query_var_levels = {"Anaplasmosis","Babesiosis","Bmi","CTF","Ehrlichiosis","LD","Powassan","SFGR","TBRF","Tularemia"};
-                    if( evidence_values[0] == 0){
+                    std::vector<std::string>::iterator fake_ev_it;
+
+                    fake_ev_it = std::find(evidence_vars.begin(),evidence_vars.end(),"JAUN");
+                    int jaun_ind = fake_ev_it - evidence_vars.begin();
+
+                    if( evidence_values[jaun_ind] == 0){
                         //Pure fake data
                         
                         means = {0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1,0.1};
@@ -356,7 +361,7 @@ namespace sourbbn {
                     } else if ( evidence_values[0] == 21 ) {
 
                         //Maryland cases
-                        if( evidence_values[1] == 0){
+                        if( evidence_values[jaun_ind] == 0){
                             //1a
                              means = {0.012,0.486,0.071,0.000,0.097,0.02,0.012,0.042,0.003,0.077};
 
