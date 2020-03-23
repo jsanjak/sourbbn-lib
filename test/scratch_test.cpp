@@ -171,7 +171,7 @@ int main(){
         std::cout << first_std.at(i) << std::endl;
     }
 
-    sourbbn::Sourbbn fake_bbn(diamond_path,true);
+    /*sourbbn::Sourbbn fake_bbn(diamond_path,true);
     fake_bbn.set_query(header_values,data_values,disease_var);
         
     fake_bbn.calc_standard_devs();
@@ -184,7 +184,7 @@ int main(){
         std::cout << first_names.at(i) <<": " ;
         std::cout << first_means.at(i) << ',';
         std::cout << first_std.at(i) << std::endl;
-    }
+    }*/
 
 
 }
