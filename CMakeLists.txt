@@ -19,11 +19,21 @@ include_directories(3rd_party/sqlite3/sqlite3)
 
 #Adds the library with no build products
 file(GLOB sour_SRC "src/*cpp")
+file(GLOB sour_INC "include/sourbbn/*hpp")
+
 add_library(sourbbn-lib SHARED ${sour_SRC})
+
+set_target_properties(sourbbn-lib PROPERTIES PUBLIC_HEADER "${sour_INC}")
 
 #Include the header files not tests or examples
 target_include_directories(sourbbn-lib PUBLIC include)
+
 target_link_libraries(sourbbn-lib sqlite3)
+
+install(TARGETS sourbbn-lib 
+        LIBRARY DESTINATION lib
+        PUBLIC_HEADER DESTINATION include/sourbbn)
+
 ##########################################################
 # Unit tests
 set( CMAKE_CXX_FLAGS " -pthread " )
