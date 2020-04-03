@@ -21,6 +21,13 @@
 #include "sourbbn/buckets.hpp"
 #include "sourbbn/utils.hpp"
 
+#include <chrono> 
+#include <ctime> 
+#include <iostream> 
+#if defined(__ANDROID__)
+#include <android/log.h>
+#endif
+
 namespace sourbbn {
     //Here for compatibility with the mobile example
     std::string from_sourbbn(const std::string &s1 ) {
@@ -50,6 +57,17 @@ namespace sourbbn {
             std::vector<float> means = {};
             std::vector<float> standard_devs = {};
             float p_e;
+            
+            void log_with_timestamp(std::string msg) 
+            {
+                #if defined(__ANDROID__)
+                    __android_log_print(ANDROID_LOG_DEBUG,"SourBBN", msg.c_str());
+                #else
+                    auto timenow = 
+                    chrono::system_clock::to_time_t(chrono::system_clock::now()); 
+                    std::cout << ctime(&timenow) << ": " << msg << std::endl; 
+                #endif
+            }
 
         public:
 
@@ -345,6 +363,8 @@ namespace sourbbn {
                 Key states:
                     - Cannot be run without setting a query variable
                 */
+                log_with_timestamp("starting means calculation");
+
                 if(fake){
                     
                     //query_var_levels = {"Anaplasmosis","Babesiosis","Bmi","CTF","Ehrlichiosis","LD","Powassan","SFGR","TBRF","Tularemia"};
@@ -406,11 +426,14 @@ namespace sourbbn {
                    
                 };
                 means_calc = true;
+                log_with_timestamp("finished means calculation");
 
             };
 
            void calc_standard_devs(){
                 //TODO ERROR AND STATE HANDLING
+                log_with_timestamp("starting stdDev calculation");
+
                 if(fake){
                     
                     standard_devs.clear();
@@ -656,6 +679,8 @@ namespace sourbbn {
                     standard_devs = sigma;
 
                 } 
+
+                log_with_timestamp("finished stdDev calculation");
 
             };
 
