@@ -64,7 +64,7 @@ namespace sourbbn {
                     __android_log_print(ANDROID_LOG_DEBUG,"SourBBN", msg.c_str());
                 #else
                     auto timenow = 
-                    chrono::system_clock::to_time_t(chrono::system_clock::now()); 
+                    std::chrono::system_clock::to_time_t(std::chrono::system_clock::now()); 
                     std::cout << ctime(&timenow) << ": " << msg << std::endl; 
                 #endif
             }
