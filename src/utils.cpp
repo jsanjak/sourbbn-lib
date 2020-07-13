@@ -219,7 +219,7 @@ CPTable elim(CPTable &cp_table,std::string var){
             RowValue new_row(new_table.m_schema);
             
             //push the probability value in
-            new_row.push_check<float>(row.get(0).m_floatingpoint);
+            new_row.push_check<double>(row.get(0).m_floatingpoint);
 
             //push the remaining values
             for (int & i : keep_var_index){
@@ -408,7 +408,7 @@ CPTable join(CPTable &t1,CPTable &t2){
                 continue;
             }
             
-            float row_prob = row1.get(0).m_floatingpoint * row2.get(0).m_floatingpoint;
+            double row_prob = row1.get(0).m_floatingpoint * row2.get(0).m_floatingpoint;
 
             //Search for this row key in the set of existing keys
             std::unordered_map<std::string,int>::const_iterator unique_row = new_row_keys.find(row_key);
@@ -422,7 +422,7 @@ CPTable join(CPTable &t1,CPTable &t2){
                 RowValue new_row(new_table.m_schema);
                 
                 //push the probability value in
-                new_row.push_check<float>(row_prob);
+                new_row.push_check<double>(row_prob);
 
                 //push the remaining key values
                 for (int & i : row_key_vec){

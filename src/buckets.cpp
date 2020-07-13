@@ -95,7 +95,7 @@ BucketList::BucketList(std::vector<std::string> & pi): variable_order_pi(pi){
 
 };
 
-float BucketList::BuckElim(){
+double BucketList::BuckElim(){
 
     if (!eliminated){
 
@@ -135,7 +135,7 @@ void BucketList::BuckElimPlus(){
     //So this can be called alone
     if(!eliminated){
         
-        float final = this->BuckElim();
+        double final = this->BuckElim();
 
     }
 
@@ -148,7 +148,7 @@ void BucketList::BuckElimPlus(){
     CPTable J;
     CPTable expand_d_ij;
     std::size_t which_g;
-    float unity = 1.0;
+    double unity = 1.0;
     for (std::size_t i = 0; i != variable_order_pi.size(); ++i ) {
         
         auto var_i = variable_order_pi[i];

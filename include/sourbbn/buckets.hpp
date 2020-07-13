@@ -62,7 +62,7 @@ struct BucketList {
   BucketList();
   BucketList(std::vector<std::string> & pi);
   
-  float BuckElim();
+  double BuckElim();
   
   void BuckElimPlus();
   void print_buckets();

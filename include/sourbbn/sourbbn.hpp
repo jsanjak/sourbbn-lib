@@ -48,8 +48,8 @@ class Sourbbn {
         void calc_standard_devs();
         std::vector<std::string> read_cptable_names();
         std::vector<std::string> read_query_names();
-        std::vector<float> read_means();
-        std::vector<float> read_standard_devs();
+        std::vector<double> read_means();
+        std::vector<double> read_standard_devs();
         
         ~Sourbbn();
         

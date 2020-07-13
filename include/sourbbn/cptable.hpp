@@ -53,15 +53,15 @@ union FieldValue {
   //FieldType   field_type;
   bool                    m_boolean;
   int                     m_integer;
-  float                   m_floatingpoint;
+  double                   m_floatingpoint;
 
   FieldValue();
   FieldValue(bool b);
   FieldValue(int i);
-  FieldValue(float f);
+  FieldValue(double f);
   bool operator==(const bool &b) const;
   bool operator==(const int &i) const;
-  bool operator==(const float &f) const;
+  bool operator==(const double &f) const;
   
 };
 
@@ -83,11 +83,11 @@ class RowValue {
     void reassign_field(const std::string fname, FieldValue fval);
     template<typename T> void push_check(T val);
     FieldValue& get(const int &i);
-    void add(const int &i,const float & fv);
+    void add(const int &i,const double & fv);
 };
 
 // p m var1 var2...
-// float float int int ...
+// double double int int ...
 struct CPTable{
 
     RowSchema m_schema;
@@ -108,8 +108,8 @@ struct CPTable{
     static int schema_callback(void* data, int argc, char** argv, char** azColName);
     static int data_callback(void* data, int argc, char** argv, char** azColName);
 
-    float column_sum(const std::string &var);
-    std::vector<float> all_probabilities();
+    double column_sum(const std::string &var);
+    std::vector<double> all_probabilities();
 };
 
 }
