@@ -54,9 +54,9 @@ namespace sourbbn {
             std::vector<int> evidence_values = {};
             std::string query_var = {};
             std::vector<std::string> query_var_levels = {};
-            std::vector<float> means = {};
-            std::vector<float> standard_devs = {};
-            float p_e;
+            std::vector<double> means = {};
+            std::vector<double> standard_devs = {};
+            double p_e;
             
             void log_with_timestamp(std::string msg) 
             {
@@ -410,7 +410,7 @@ namespace sourbbn {
                     //calulate P( H=q_lev | E=evidence)
                     //Normalize to obtain conditional probabilities
                     means.clear();
-                    float p_h_e;
+                    double p_h_e;
                     for (auto && q_lev : query_var_levels){
                         //for (auto & vop :query_bucket_lists[q_lev].variable_order_pi){
                         //    std::cout << vop << ", ";
@@ -499,19 +499,19 @@ namespace sourbbn {
                     }
 
                     
-                    std::vector<float> temp_probs;
-                    float der_joint;
-                    float der_p_h_cond_e;
-                    float der_p_e;
-                    float der_p_he;
-                    float p_h_cond_e;
-                    float theta;
-                    float var_theta_a;
-                    float var_theta_b;
-                    float var_theta;
-                    float sigma_sq_h_e;
-                    std::vector<float> sigma;
-                    float m_f;
+                    std::vector<double> temp_probs;
+                    double der_joint;
+                    double der_p_h_cond_e;
+                    double der_p_e;
+                    double der_p_he;
+                    double p_h_cond_e;
+                    double theta;
+                    double var_theta_a;
+                    double var_theta_b;
+                    double var_theta;
+                    double sigma_sq_h_e;
+                    std::vector<double> sigma;
+                    double m_f;
                     int q_ind;
                     int e_ind;
                     std::size_t match_indicator;
@@ -702,12 +702,12 @@ namespace sourbbn {
 
             };
 
-            std::vector<float> read_means(){
+            std::vector<double> read_means(){
                 //TODO ERROR AND STATE HANDLING
                 return(means);
             };
             
-            std::vector<float> read_standard_devs(){
+            std::vector<double> read_standard_devs(){
                 //TODO ERROR AND STATE HANDLING
                 return(standard_devs);
             };
@@ -728,10 +728,10 @@ namespace sourbbn {
     void Sourbbn::calc_means(){sourbbn_pimpl->calc_means();}
     void Sourbbn::calc_standard_devs(){sourbbn_pimpl->calc_standard_devs();}
 
-    std::vector<float> Sourbbn::read_means(){ return sourbbn_pimpl->read_means();}
+    std::vector<double> Sourbbn::read_means(){ return sourbbn_pimpl->read_means();}
     std::vector<std::string> Sourbbn::read_cptable_names(){ return sourbbn_pimpl->read_cptable_names();}
     std::vector<std::string> Sourbbn::read_query_names(){ return sourbbn_pimpl->read_query_names();}
-    std::vector<float> Sourbbn::read_standard_devs(){ return sourbbn_pimpl->read_standard_devs();}
+    std::vector<double> Sourbbn::read_standard_devs(){ return sourbbn_pimpl->read_standard_devs();}
     
     //Default for now, but in the long run we may need custom
     Sourbbn::~Sourbbn() = default;

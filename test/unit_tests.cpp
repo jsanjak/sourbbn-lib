@@ -59,11 +59,11 @@ TEST_CASE("Public API"){
 
     REQUIRE_NOTHROW(test_bbn.calc_means());
    
-    std::vector<float> test_means = test_bbn.read_means();
+    std::vector<double> test_means = test_bbn.read_means();
     
     
     test_bbn.calc_standard_devs();
-    std::vector<float> test_standard_devs = test_bbn.read_standard_devs();
+    std::vector<double> test_standard_devs = test_bbn.read_standard_devs();
     
     std::vector<std::string> test_query_names = test_bbn.read_query_names();
 
@@ -162,7 +162,7 @@ TEST_CASE("Test RowValue ") {
     
     row_values.push_check<bool>(true);
     row_values.push_check<int>(10);
-    row_values.push_check<float>(10.10);
+    row_values.push_check<double>(10.10);
     
     //Tests on the shared schema pointer
     REQUIRE( (*row_values.m_schema).get(0) == bool_field) ;
@@ -190,7 +190,7 @@ TEST_CASE("Test RowValue ") {
     //Tests on the data access
     REQUIRE( row_values.get(0) == true );
     REQUIRE( row_values.get(1) == 10 );
-    REQUIRE( row_values.get(2) == float(10.10) );
+    REQUIRE( row_values.get(2) == double(10.10) );
     
 }
 
@@ -208,7 +208,7 @@ TEST_CASE("Test CPTable Features"){
     std::vector<std::string> static_link_table{"a_link","b_link","c_link","d_link"};
     std::vector<std::string> static_column_names{"p","m","dist","d","b","c"};
 
-    float total_prob = 4.0;
+    double total_prob = 4.0;
     int n_col_elim = 3;
     size_t n_row = 8;
     size_t n_row_elim = 4;

@@ -54,8 +54,8 @@ int main(){
     sourbbn::Sourbbn ger_bbn(ger_path,false);
     std::vector<std::string> cptable_names = ger_bbn.read_cptable_names();
 
-    std::vector<float> first_means;
-    std::vector<float> first_std;
+    std::vector<double> first_means;
+    std::vector<double> first_std;
     std::vector<std::string> first_names;
     std::cout << "Germany DB Queries: " << std::endl;
 
@@ -68,17 +68,18 @@ int main(){
         data_values.erase(data_values.begin());
 
         ger_bbn.set_query(header_values,data_values,disease_var);
-        ger_bbn.calc_means();
+        //ger_bbn.calc_means();
 
-        //ger_bbn.calc_standard_devs();
+        ger_bbn.calc_standard_devs();
         first_means = ger_bbn.read_means();
-        //first_std = ger_bbn.read_standard_devs();
+        first_std = ger_bbn.read_standard_devs();
         first_names= ger_bbn.read_query_names();
         
         
         std::cout << "Case " << case_num << ": ";
         for (std::size_t i=0;i!=first_means.size(); ++i){
             std::cout << first_means.at(i) << ',';
+            std::cout << first_std.at(i) << ',';
             //std::cout << first_std.at(i) << std::endl;
         }
         case_num +=1;

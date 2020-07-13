@@ -124,7 +124,7 @@ FieldValue::FieldValue(int i){
 
 };
 
-FieldValue::FieldValue(float f){
+FieldValue::FieldValue(double f){
 
     //field_type = FieldType::FloatingPoint;
     m_floatingpoint = f;
@@ -143,7 +143,7 @@ bool FieldValue::operator==(const int &i) const {
 
 };
 
-bool FieldValue::operator==(const float &f) const {
+bool FieldValue::operator==(const double &f) const {
 
     return ( m_floatingpoint == f );
 
@@ -213,7 +213,7 @@ template<typename T> void RowValue::push_check(T val){
 
             } else if (  ft == FieldType::FloatingPoint ){
 
-                if ( typeid(val)==typeid(float) ){
+                if ( typeid(val)==typeid(double) ){
 
                      m_fields.emplace_back(val);
 
@@ -233,7 +233,7 @@ template<typename T> void RowValue::push_check(T val){
 };
 template void RowValue::push_check<int>(int);
 template void RowValue::push_check<bool>(bool);
-template void RowValue::push_check<float>(float);
+template void RowValue::push_check<double>(double);
 
 FieldValue& RowValue::get(const int &i) {
 
@@ -243,7 +243,7 @@ FieldValue& RowValue::get(const int &i) {
 
 };
 
-void RowValue::add(const int &i,const float & fv){
+void RowValue::add(const int &i,const double & fv){
 
     //should check that field value at i is int
     m_fields.at(i).m_floatingpoint += fv;
@@ -359,7 +359,7 @@ int CPTable::data_callback(void* data, int argc, char** argv, char** azColName){
 
         } else if ( ft == FieldType::FloatingPoint){
 
-             row_data.push_check<float>((float)atof(argv[i]));
+             row_data.push_check<double>((double)atof(argv[i]));
 
         } else {
 
@@ -372,9 +372,9 @@ int CPTable::data_callback(void* data, int argc, char** argv, char** azColName){
     return 0; 
 } 
 
-float CPTable::column_sum(const std::string &var){
+double CPTable::column_sum(const std::string &var){
 
-    float col_sum = 0.0;
+    double col_sum = 0.0;
     int var_index = m_schema.get_index(var);
     for (auto & row: m_rows) {
         col_sum += row.get(var_index).m_floatingpoint;
@@ -382,9 +382,9 @@ float CPTable::column_sum(const std::string &var){
     return (col_sum);
 };
 
- std::vector<float> CPTable::all_probabilities(){
+ std::vector<double> CPTable::all_probabilities(){
      
-     std::vector<float> all_p;
+     std::vector<double> all_p;
      
      int p_index = m_schema.get_index("p");
 

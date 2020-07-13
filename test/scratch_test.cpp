@@ -94,7 +94,7 @@ int main(){
     
     test_bbn.calc_means();
     
-    std::vector<float> test_means = test_bbn.read_means();
+    std::vector<double> test_means = test_bbn.read_means();
 
     std::cout << "test means: ";
     for (auto & m : test_means){
@@ -137,8 +137,8 @@ int main(){
     evidence_vars = {"a","c","b"};
     query_1 = {1,1,1};
     
-    std::vector<float> first_means;
-    std::vector<float> first_std;
+    std::vector<double> first_means;
+    std::vector<double> first_std;
     std::vector<std::string> first_names;
 
     std::string net_type = "tbd";
