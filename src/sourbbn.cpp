@@ -113,7 +113,8 @@ namespace sourbbn {
             }
 
             void set_query(
-                const std::vector<std::string> & e_vars, 
+                const std::vector<std::string> & e_vars,
+                //for multi-level we probably need std::vector<std::vector<int>>  
                 const std::vector<int> & e_values, 
                 const std::string & q_var){
                 if (fake){
@@ -154,7 +155,8 @@ namespace sourbbn {
                             assert(qvar_it != cptable_names.end());
                         
                             for(auto var : evidence_vars){
-                                
+                                //std::cout << var << std::endl;
+
                                 evar_it = find(cptable_names.begin(),cptable_names.end(),var);
 
                                 if(evar_it == cptable_names.end() ){
@@ -218,7 +220,7 @@ namespace sourbbn {
                                     if (evar_it != temp_table_names.end()){
 
                                             if (ev_in_table == 0){
-
+                                                //TODO: this needs to be prepped for vectors evidence within a variable
                                                 condition_temp = " WHERE " + evidence_vars[ev_i] + " = " + std::to_string(evidence_values[ev_i]);
                                                 
                                             } else {
@@ -363,7 +365,8 @@ namespace sourbbn {
                 Key states:
                     - Cannot be run without setting a query variable
                 */
-                log_with_timestamp("starting means calculation");
+               
+                //log_with_timestamp("starting means calculation");
 
                 if(fake){
                     
@@ -409,7 +412,10 @@ namespace sourbbn {
                     means.clear();
                     float p_h_e;
                     for (auto && q_lev : query_var_levels){
-                        
+                        //for (auto & vop :query_bucket_lists[q_lev].variable_order_pi){
+                        //    std::cout << vop << ", ";
+                       //}
+                        //std:: cout << std::endl;
                         p_h_e = query_bucket_lists[q_lev].BuckElim();
 
                         means.push_back(p_h_e);
@@ -426,13 +432,13 @@ namespace sourbbn {
                    
                 };
                 means_calc = true;
-                log_with_timestamp("finished means calculation");
+                //log_with_timestamp("finished means calculation");
 
             };
 
            void calc_standard_devs(){
                 //TODO ERROR AND STATE HANDLING
-                log_with_timestamp("starting stdDev calculation");
+                //log_with_timestamp("starting stdDev calculation");
 
                 if(fake){
                     
@@ -680,7 +686,7 @@ namespace sourbbn {
 
                 } 
 
-                log_with_timestamp("finished stdDev calculation");
+                //log_with_timestamp("finished stdDev calculation");
 
             };
 

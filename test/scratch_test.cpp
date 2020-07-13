@@ -158,6 +158,10 @@ int main(){
         sourbbn::Sourbbn oy1_bbn(oy1_path,false);
         std::vector<std::string> cptable_names = oy1_bbn.read_cptable_names();
         
+        //std::vector<std::string> header_values = {"state","JAUN"};
+        //std::string disease_var  = "disease";
+        //std::vector<int> data_values = {1,1};
+
         oy1_bbn.set_query(header_values,data_values,disease_var);
         //oy1_bbn.calc_means();
         oy1_bbn.calc_standard_devs();
@@ -171,20 +175,34 @@ int main(){
         std::cout << first_std.at(i) << std::endl;
     }
 
-    /*sourbbn::Sourbbn fake_bbn(diamond_path,true);
-    fake_bbn.set_query(header_values,data_values,disease_var);
-        
-    fake_bbn.calc_standard_devs();
-    first_means = fake_bbn.read_means();
-    first_std = fake_bbn.read_standard_devs();
-    first_names= fake_bbn.read_query_names();
+
+    std::ifstream gerfile ("test/data/germany_query_example.txt");
+    header_values.clear();
+    data_values.clear();
+    std::getline(gerfile, header_line);
+    std::getline(gerfile, data_line);
+
+    split(header_line, '\t', header_values);
+    split_toint(data_line, '\t', data_values);
     
-    std::cout << "Mean, Std. Dev: " << std::endl;;
+    header_values.erase(header_values.begin());
+    data_values.erase(data_values.begin());
+
+    std::string ger_path = "test/data/germany_disease_db.sqlite";
+    sourbbn::Sourbbn ger_bbn(ger_path,false);
+    std::vector<std::string> cptable_names = ger_bbn.read_cptable_names();
+
+    ger_bbn.set_query(header_values,data_values,disease_var);
+    ger_bbn.calc_means();
+    /*ger_bbn.calc_standard_devs();
+    first_means = ger_bbn.read_means();
+    first_std = ger_bbn.read_standard_devs();
+    first_names= ger_bbn.read_query_names();
+    
+    std::cout << "Germany DB Query: " << std::endl;
+    std::cout << "Mean, Std. Dev: " << std::endl;
     for (std::size_t i=0;i!=first_means.size(); ++i){
-        std::cout << first_names.at(i) <<": " ;
         std::cout << first_means.at(i) << ',';
         std::cout << first_std.at(i) << std::endl;
     }*/
-
-
 }

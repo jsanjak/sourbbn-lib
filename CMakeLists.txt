@@ -41,6 +41,8 @@ enable_testing()
 
 add_executable(unit_tests test/unit_tests.cpp)
 add_executable(scratch_test test/scratch_test.cpp)
+add_executable(multi_query_test test/multi_query_test.cpp)
+
 
 target_link_libraries(unit_tests
     sourbbn-lib
@@ -54,6 +56,13 @@ target_link_libraries(scratch_test
     sqlite3
     ${CMAKE_DL_LIBS}
 )
+
+target_link_libraries(multi_query_test
+    sourbbn-lib
+    sqlite3
+    ${CMAKE_DL_LIBS}
+)
+
 
 
 #add_test(test_all unit_tests)
