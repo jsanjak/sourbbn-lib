@@ -50,6 +50,10 @@ class Sourbbn {
         std::vector<std::string> read_query_names();
         std::vector<double> read_means();
         std::vector<double> read_standard_devs();
+
+        double model_confidence(
+            std::vector<double> & model_results,
+            std::vector<std::vector<std::vector<double>>>  & model_weights);
         
         ~Sourbbn();
         

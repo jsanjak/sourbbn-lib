@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 
+
 #include "sourbbn/cptable.hpp"
 
 namespace sourbbn {
@@ -26,6 +27,8 @@ std::string max_index(CPTable & b_tbl, std::vector<std::string> & variable_order
 
 std::vector<std::string> scheme_diff(RowSchema & s1, RowSchema & s2 );
 std::vector<std::string> scheme_overlap(RowSchema & s1, RowSchema & s2 );
+
+double sigmoid(double & x);
 
 }
 
