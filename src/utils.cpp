@@ -5,6 +5,7 @@
 #include <iterator>
 #include <algorithm>
 #include <iostream>
+#include <math.h>
 
 #include "sourbbn/cptable.hpp"
 
@@ -549,6 +550,15 @@ std::string max_index(CPTable & b_tbl, std::vector<std::string> & variable_order
         }
     }
     return(m_index);
+
+};
+
+
+double sigmoid(double & x){
+    
+    double negx = 0 - x;
+    double sigx = 1.0 / (1.0 + exp ( negx ));
+    return(sigx);
 
 };
 

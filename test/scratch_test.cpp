@@ -176,6 +176,41 @@ int main(){
     }
 
 
+    //Confidence metric stuff
+    std::vector<double> test_case = 
+    {
+        0.8406321, 2.41000e-21, 0.1284195650, 4.76000e-15, 2.765143e-02, 9.23e-21,
+        1.854498e-03, 4.78e-15, 5.941360e-04, 4.95000e-20, 4.275380e-04, 5.32e-23
+    };
+    std::vector<std::vector<std::vector<double>>> model_weights = 
+    {
+        {
+            {2.276943,-1.79556889, 1.134883},
+            {-5.823954,  1.47627497,   -1.614081},
+            { 107.369620, -0.70660432,  -17.518970},
+            {1677.840421, -0.65770028,  43.798467},
+            {-85.417529, -0.24298551,   22.376288},
+            {111.514040, -0.19916359,   88.143804},
+            {-136.394348, -0.27057173,   13.092243},
+            {923.591191, -1.83785209,  174.817614},
+            {-275.894449, -0.07940933,  51.257397},
+            {499.876273, -2.97093154, -289.789083},
+            {-419.212281, -0.50587292,  -14.753628},
+            {1668.422618,  5.25742057,  177.055637},
+            {-31.064140,  0.57697315,   27.215548}
+        },
+        {
+            { 2.802455},
+            {-2.696183},
+            {10.131903},
+            {-3.764107}
+        }
+    };    
+    
+    sourbbn::Sourbbn confidence_bbn(oy1_path,false);
+    double test_confidence = confidence_bbn.model_confidence(test_case,model_weights);
+    std::cout << "Confidence metric: " << test_confidence << std::endl;
+    /*
     std::ifstream gerfile ("test/data/germany_query_example.txt");
     header_values.clear();
     data_values.clear();
@@ -194,7 +229,7 @@ int main(){
 
     ger_bbn.set_query(header_values,data_values,disease_var);
     ger_bbn.calc_means();
-    /*ger_bbn.calc_standard_devs();
+    ger_bbn.calc_standard_devs();
     first_means = ger_bbn.read_means();
     first_std = ger_bbn.read_standard_devs();
     first_names= ger_bbn.read_query_names();
@@ -205,4 +240,5 @@ int main(){
         std::cout << first_means.at(i) << ',';
         std::cout << first_std.at(i) << std::endl;
     }*/
+
 }
