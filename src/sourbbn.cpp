@@ -36,6 +36,60 @@ namespace sourbbn {
 
     }
 
+    double model_confidence(
+                std::vector<double> & model_results,
+                std::vector<std::vector<std::vector<double>>> & model_weights){
+            
+        //initialize prediction_feed as model_results
+        std::vector<double> prediction_feed = model_results;
+
+        //Product should initialize to be a zero vector of size equal to the number of columns in the first matrix
+        //which is the size of the first vector, because the vectors are the matrix rows
+        std::vector<double> product(model_weights.at(0).at(0).size(), 0.0);
+
+        for (auto & layer_weights : model_weights){
+                    
+            std::fill(product.begin(), product.end(), 0.0);
+            //input dimension should equal weights row dimension (minus 1 for the bias unit)
+
+            if (prediction_feed.size() == (layer_weights.size() - 1)) {
+                
+                //CITE:https://www.tutorialspoint.com/cplusplus-program-to-multiply-two-matrices-by-passing-matrix-to-function
+                //but our"A" matrix is just a vector
+                //Loop over columns in the weight matrix
+                for(int j=0 ; j < layer_weights.at(0).size(); ++j) {
+                    
+                    for(int k=0; k < (prediction_feed.size() + 1) ; ++k) {
+                        
+                        if (k == 0){
+                            
+                            product.at(j) += 1.0*layer_weights.at(0).at(j);
+
+                        } else {
+                            
+                            product.at(j) += prediction_feed.at(k-1)*layer_weights.at(k).at(j);
+
+                        }
+                        
+                    }
+                }
+                prediction_feed.clear();
+                for(auto & prod : product){
+
+                    prediction_feed.push_back( sigmoid(prod));
+                
+                } 
+        
+            } else {
+                //Model not approriate
+                std::cout<< "bad model"  << std::endl;
+                return ( -1.0 );
+            }
+
+        }
+        return (prediction_feed.at(0));
+    };
+
     class Sourbbn::sourbbn_impl {
 
         private:
@@ -712,59 +766,7 @@ namespace sourbbn {
                 return(standard_devs);
             };
 
-            double model_confidence(
-                std::vector<double> & model_results,
-                std::vector<std::vector<std::vector<double>>> & model_weights){
             
-            //initialize prediction_feed as model_results
-            std::vector<double> prediction_feed = model_results;
-
-            //Product should initialize to be a zero vector of size equal to the number of columns in the first matrix
-            //which is the size of the first vector, because the vectors are the matrix rows
-            std::vector<double> product(model_weights.at(0).at(0).size(), 0.0);
-
-            for (auto & layer_weights : model_weights){
-                      
-                std::fill(product.begin(), product.end(), 0.0);
-                //input dimension should equal weights row dimension (minus 1 for the bias unit)
-
-                if (prediction_feed.size() == (layer_weights.size() - 1)) {
-                    
-                    //CITE:https://www.tutorialspoint.com/cplusplus-program-to-multiply-two-matrices-by-passing-matrix-to-function
-                    //but our"A" matrix is just a vector
-                    //Loop over columns in the weight matrix
-                    for(int j=0 ; j < layer_weights.at(0).size(); ++j) {
-                        
-                        for(int k=0; k < (prediction_feed.size() + 1) ; ++k) {
-                            
-                            if (k == 0){
-                               
-                                product.at(j) += 1.0*layer_weights.at(0).at(j);
-
-                            } else {
-                                
-                                product.at(j) += prediction_feed.at(k-1)*layer_weights.at(k).at(j);
-
-                            }
-                            
-                        }
-                    }
-                    prediction_feed.clear();
-                    for(auto & prod : product){
-
-                        prediction_feed.push_back( sigmoid(prod));
-                   
-                    } 
-            
-                } else {
-                    //Model not approriate
-                    std::cout<< "bad model"  << std::endl;
-                    return ( -1.0 );
-                }
-
-            }
-            return (prediction_feed.at(0));
-        };
     };//End sourbbn_impl
 
     Sourbbn::Sourbbn(const std::string &db_path) : sourbbn_pimpl {  new sourbbn_impl(db_path) }{}
@@ -786,13 +788,6 @@ namespace sourbbn {
     std::vector<std::string> Sourbbn::read_query_names(){ return sourbbn_pimpl->read_query_names();}
     std::vector<double> Sourbbn::read_standard_devs(){ return sourbbn_pimpl->read_standard_devs();}
     
-    
-    double Sourbbn::model_confidence(
-        std::vector<double> & model_results,
-        std::vector<std::vector<std::vector<double>>> & model_weights)
-        { 
-            return sourbbn_pimpl->model_confidence(model_results,model_weights);
-        }
     //Default for now, but in the long run we may need custom
     Sourbbn::~Sourbbn() = default;
 }
