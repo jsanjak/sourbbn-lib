@@ -15,6 +15,10 @@ namespace sourbbn {
 
 std::string from_sourbbn(const std::string &s1);
 
+//confidence function
+double model_confidence(
+    std::vector<double> & model_results,
+    std::vector<std::vector<std::vector<double>>>  & model_weights);
 /**
  * Sourbbn provides the interface to construct and query
  * Second-Order Uncertainty Bayesian Belief Networks (sou-bbn)
@@ -51,10 +55,6 @@ class Sourbbn {
         std::vector<double> read_means();
         std::vector<double> read_standard_devs();
 
-        double model_confidence(
-            std::vector<double> & model_results,
-            std::vector<std::vector<std::vector<double>>>  & model_weights);
-        
         ~Sourbbn();
         
         //CPTable& get_table(std::string & tbl_name);

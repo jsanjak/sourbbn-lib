@@ -207,8 +207,8 @@ int main(){
         }
     };    
     
-    sourbbn::Sourbbn confidence_bbn(oy1_path,false);
-    double test_confidence = confidence_bbn.model_confidence(test_case,model_weights);
+    
+    double test_confidence = sourbbn::model_confidence(test_case,model_weights);
     std::cout << "Confidence metric: " << test_confidence << std::endl;
     /*
     std::ifstream gerfile ("test/data/germany_query_example.txt");
